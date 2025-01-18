@@ -1,7 +1,7 @@
 "use client";
 
-import Link from "next/link";
 import Image from "next/image";
+import Link from "next/link";
 import { ShoppingCart } from "lucide-react";
 import type { Product } from "../types";
 import { useCartStore } from "../store/useCartStore";
@@ -21,8 +21,10 @@ export default function ProductCard({ product }: ProductCardProps) {
             src={product.images[0]}
             alt={product.title}
             fill
-            className="object-cover rounded-lg"
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            className="object-cover rounded-lg"
+            priority={false}
+            quality={75}
           />
         </div>
         <h2 className="text-lg font-bold">{product.title}</h2>

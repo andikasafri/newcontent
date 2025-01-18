@@ -1,4 +1,6 @@
-import { useNavigate } from "react-router-dom";
+"use client";
+
+import { useRouter } from "next/navigation";
 import { useAuthStore } from "../store/useAuthStore";
 import toast from "react-hot-toast";
 
@@ -7,29 +9,25 @@ import toast from "react-hot-toast";
  * Provides login, register, and logout functionality with error handling and navigation
  */
 export function useAuth() {
-  const navigate = useNavigate();
-  const { login, register, logout, isAuthenticated, user } = useAuthStore();
+  const router = useRouter();
+  const { login: authLogin, register: authRegister, logout: authLogout, isAuthenticated, user } = useAuthStore();
 
   const handleLogin = async (email: string, password: string) => {
     try {
-      await login(email, password);
+      await authLogin(email, password);
       toast.success("Successfully logged in!");
-      navigate("/");
+      router.push("/");
     } catch (error) {
       toast.error("Invalid credentials");
       throw error;
     }
   };
 
-  const handleRegister = async (
-    name: string,
-    email: string,
-    password: string
-  ) => {
+  const handleRegister = async (name: string, email: string, password: string) => {
     try {
-      await register(name, email, password);
+      await authRegister(name, email, password);
       toast.success("Successfully registered!");
-      navigate("/");
+      router.push("/");
     } catch (error) {
       toast.error("Registration failed");
       throw error;
@@ -37,9 +35,9 @@ export function useAuth() {
   };
 
   const handleLogout = () => {
-    logout();
+    authLogout();
     toast.success("Successfully logged out");
-    navigate("/");
+    router.push("/");
   };
 
   return {

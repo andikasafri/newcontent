@@ -5,8 +5,17 @@ import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 
 export const metadata: Metadata = {
-  title: "ShopHub - Your One-Stop Shop",
+  title: {
+    template: '%s | ShopHub',
+    default: 'ShopHub - Your One-Stop Shop',
+  },
   description: "Find amazing products at unbeatable prices",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'),
+  openGraph: {
+    type: 'website',
+    locale: 'en_US',
+    siteName: 'ShopHub',
+  },
 };
 
 export default function RootLayout({

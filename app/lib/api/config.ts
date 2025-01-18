@@ -14,9 +14,13 @@ api.interceptors.request.use(
   async (config) => {
     // Only run on client side
     if (typeof window !== "undefined") {
-      const token = localStorage.getItem("token");
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
+      try {
+        const token = localStorage.getItem("token");
+        if (token) {
+          config.headers.Authorization = `Bearer ${token}`;
+        }
+      } catch (error) {
+        console.error("Error accessing localStorage:", error);
       }
     }
     return config;
@@ -30,10 +34,12 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
-    if (error.response?.status === 401) {
-      if (typeof window !== "undefined") {
+    if (error.response?.status === 401 && typeof window !== "undefined") {
+      try {
         localStorage.removeItem("token");
         window.location.href = "/login";
+      } catch (error) {
+        console.error("Error accessing localStorage:", error);
       }
     }
     return Promise.reject(error);
