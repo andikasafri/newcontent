@@ -1,8 +1,7 @@
-// pages/_app.tsx
 import { AppProps } from "next/app";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useState } from "react";
-import "../styles/globals.css"; // Import global styles
+import "@/app/globals.css"; // Updated import path
 
 function MyApp({ Component, pageProps }: AppProps) {
   // Create a client

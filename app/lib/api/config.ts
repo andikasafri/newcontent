@@ -1,24 +1,43 @@
-/**
- * API configuration and axios instance setup
- */
-
 import axios from "axios";
 
-/** Base URL for the API */
-export const BASE_URL = "https://api.escuelajs.co/api/v1";
+export const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://api.escuelajs.co/api/v1";
 
-/** Create axios instance with default configuration */
-export const api = axios.create({
+const api = axios.create({
   baseURL: BASE_URL,
+  headers: {
+    "Content-Type": "application/json",
+  },
 });
 
-// Add auth token to requests if available
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("token");
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+// Add request interceptor for auth token
+api.interceptors.request.use(
+  async (config) => {
+    // Only run on client side
+    if (typeof window !== "undefined") {
+      const token = localStorage.getItem("token");
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
   }
-  return config;
-});
+);
+
+// Add response interceptor for handling auth errors
+api.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    if (error.response?.status === 401) {
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("token");
+        window.location.href = "/login";
+      }
+    }
+    return Promise.reject(error);
+  }
+);
 
 export default api;

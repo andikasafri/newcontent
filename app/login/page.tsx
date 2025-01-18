@@ -1,15 +1,16 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+"use client";
+
+import { useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useAuth } from "../hooks/useAuth";
 
-/**
- * Login page component with form validation and error handling
- */
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { login } = useAuth();
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -18,6 +19,7 @@ export default function Login() {
     try {
       setIsSubmitting(true);
       await login(email, password);
+      router.push("/");
     } catch (error) {
       console.error("Login failed:", error);
     } finally {
@@ -35,7 +37,7 @@ export default function Login() {
           <p className="mt-2 text-center text-sm text-gray-600">
             Or{" "}
             <Link
-              to="/register"
+              href="/register"
               className="font-medium text-blue-600 hover:text-blue-500"
             >
               create a new account

@@ -1,6 +1,8 @@
-import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
-import { User } from '../types';
+"use client";
+
+import { create } from "zustand";
+import { persist } from "zustand/middleware";
+import type { User } from "../types";
 
 interface AuthState {
   user: User | null;
@@ -18,7 +20,8 @@ export const useAuthStore = create<AuthState>()(
       clearUser: () => set({ user: null, isAuthenticated: false }),
     }),
     {
-      name: 'auth-storage',
+      name: "auth-storage",
+      skipHydration: true,
     }
   )
 );
