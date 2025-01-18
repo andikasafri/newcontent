@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useRef, useEffect, useState } from "react";
 import { useScroll, useTransform, motion, MotionValue } from "framer-motion";
 import { cn } from "../lib/utils";
@@ -26,7 +28,7 @@ interface ContainerScrollProps {
  * </ContainerScroll>
  * ```
  */
-export const ContainerScroll: React.FC<ContainerScrollProps> = ({
+const ContainerScroll: React.FC<ContainerScrollProps> = ({
   titleComponent,
   children,
   className,
@@ -111,3 +113,5 @@ const Card: React.FC<CardProps> = ({ rotate, scale, children }) => (
     </div>
   </motion.div>
 );
+
+export default ContainerScroll; // Default export
