@@ -1,9 +1,7 @@
-/**
- * Authentication-related API endpoints
- */
-
-import api from "./config";
+import { createClientApi } from "./config";
 import type { User } from "../../types";
+
+const api = createClientApi();
 
 interface LoginResponse {
   access_token: string;

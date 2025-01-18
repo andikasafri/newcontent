@@ -1,8 +1,4 @@
-/**
- * Category-related API endpoints
- */
-
-import api from "./config";
+import { baseApi } from "./config";
 import type { Category } from "../../types";
 
 /**
@@ -10,6 +6,6 @@ import type { Category } from "../../types";
  * @returns Promise containing category data
  */
 export const getCategories = async (): Promise<Category[]> => {
-  const response = await api.get("/categories");
+  const response = await baseApi.get("/categories");
   return response.data;
 };

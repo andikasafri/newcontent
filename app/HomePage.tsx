@@ -11,6 +11,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Category, Product } from "./types";
 import Magnet from "./components/Magnet";
 import { useState } from "react";
+import Image from "next/image";
 
 interface HomePageProps {
   initialData: {
@@ -79,9 +80,11 @@ export function HomePage({ initialData }: HomePageProps) {
               className="relative rounded-lg overflow-hidden group cursor-pointer"
               onClick={() => router.push("/products")}
             >
-              <img
+              <Image
                 src={category.image}
                 alt={category.name}
+                width={340}
+                height={160}
                 className="w-full h-40 object-cover group-hover:scale-105 transition-transform duration-200"
               />
               <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">

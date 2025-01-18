@@ -1,3 +1,4 @@
+//  Code for the Navbar component
 "use client";
 
 import Link from "next/link";
@@ -43,7 +44,10 @@ export default function Navbar() {
               <Link href="/" className="text-gray-600 hover:text-gray-900">
                 Home
               </Link>
-              <Link href="/products" className="text-gray-600 hover:text-gray-900">
+              <Link
+                href="/products"
+                className="text-gray-600 hover:text-gray-900"
+              >
                 Products
               </Link>
             </div>

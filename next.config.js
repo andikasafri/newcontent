@@ -3,14 +3,19 @@ const nextConfig = {
   images: {
     remotePatterns: [
       {
-        protocol: 'https',
-        hostname: 'api.lorem.space',
-        pathname: '/image/**',
+        protocol: "https",
+        hostname: "api.lorem.space",
+        pathname: "/image/**",
       },
       {
-        protocol: 'https',
-        hostname: 'api.escuelajs.co',
-        pathname: '/api/v1/**',
+        protocol: "https",
+        hostname: "api.escuelajs.co",
+        pathname: "/api/v1/**",
+      },
+      {
+        protocol: "https",
+        hostname: "i.imgur.com",
+        pathname: "/**",
       },
     ],
   },
@@ -18,6 +23,6 @@ const nextConfig = {
   compiler: {
     styledComponents: true,
   },
-}
+};
 
-module.exports = nextConfig
+module.exports = nextConfig;

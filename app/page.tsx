@@ -12,11 +12,16 @@ export const metadata: Metadata = {
 export const revalidate = 3600; // Revalidate every hour
 
 async function getInitialData() {
-  const [products, categories] = await Promise.all([
-    getProducts(0, 8),
-    getCategories(),
-  ]);
-  return { products, categories };
+  try {
+    const [products, categories] = await Promise.all([
+      getProducts(0, 8),
+      getCategories(),
+    ]);
+    return { products, categories };
+  } catch (error) {
+    console.error("Error fetching initial data:", error);
+    return { products: [], categories: [] };
+  }
 }
 
 export default async function Page() {

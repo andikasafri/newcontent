@@ -2,8 +2,21 @@ import { Suspense } from "react";
 import { getProduct } from "@/app/lib/api";
 import { LoadingSpinner } from "@/app/components/LoadingSpinner";
 import ProductDetail from "./ProductDetail";
+import type { Metadata } from "next";
 
-export default async function ProductPage({ params }: { params: { id: string } }) {
+interface Props {
+  params: { id: string };
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const product = await getProduct(parseInt(params.id));
+  return {
+    title: product.title,
+    description: product.description,
+  };
+}
+
+export default async function ProductPage({ params }: Props) {
   const product = await getProduct(parseInt(params.id));
 
   return (

@@ -10,7 +10,7 @@ import ProductDetail from "./pages/ProductDetail";
 import Cart from "./pages/Cart";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
-
+import "../styles/globals.css";
 // Create a new QueryClient instance for React Query
 const queryClient = new QueryClient();
 
