@@ -1,12 +1,21 @@
-import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
-import { CartItem, Product } from './types';
+"use client";
+
+import { create } from "zustand";
+import { persist } from "zustand/middleware";
+import { Product } from "@/lib/types";
+
+interface CartItem extends Product {
+  quantity: number;
+}
 
 interface CartState {
   items: CartItem[];
   savedItems: CartItem[];
   discountCode: string | null;
   discountAmount: number;
+  shipping: number;
+  subtotal: number;
+  total: number;
   addItem: (product: Product) => void;
   removeItem: (productId: number) => void;
   updateQuantity: (productId: number, quantity: number) => void;
@@ -15,15 +24,12 @@ interface CartState {
   applyDiscount: (code: string) => void;
   removeDiscount: () => void;
   clearCart: () => void;
-  total: number;
-  subtotal: number;
-  shipping: number;
 }
 
 const DISCOUNT_CODES = {
-  'SAVE10': 0.1,
-  'SAVE20': 0.2,
-  'FREESHIP': 0,
+  SAVE10: 0.1,
+  SAVE20: 0.2,
+  FREESHIP: 0,
 };
 
 export const useCart = create<CartState>()(
@@ -36,10 +42,12 @@ export const useCart = create<CartState>()(
       shipping: 0,
       subtotal: 0,
       total: 0,
-      
+
       addItem: (product) => {
         set((state) => {
-          const existingItem = state.items.find((item) => item.id === product.id);
+          const existingItem = state.items.find(
+            (item) => item.id === product.id
+          );
           const newItems = existingItem
             ? state.items.map((item) =>
                 item.id === product.id
@@ -47,12 +55,15 @@ export const useCart = create<CartState>()(
                   : item
               )
             : [...state.items, { ...product, quantity: 1 }];
-          
-          const subtotal = newItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
+          const subtotal = newItems.reduce(
+            (sum, item) => sum + item.price * item.quantity,
+            0
+          );
           const shipping = subtotal > 100 ? 0 : 10;
-          const total = subtotal + shipping - (subtotal * state.discountAmount);
-          
-          return { 
+          const total = subtotal + shipping - subtotal * state.discountAmount;
+
+          return {
             items: newItems,
             subtotal,
             shipping,
@@ -64,11 +75,14 @@ export const useCart = create<CartState>()(
       removeItem: (productId) => {
         set((state) => {
           const newItems = state.items.filter((item) => item.id !== productId);
-          const subtotal = newItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+          const subtotal = newItems.reduce(
+            (sum, item) => sum + item.price * item.quantity,
+            0
+          );
           const shipping = subtotal > 100 ? 0 : 10;
-          const total = subtotal + shipping - (subtotal * state.discountAmount);
-          
-          return { 
+          const total = subtotal + shipping - subtotal * state.discountAmount;
+
+          return {
             items: newItems,
             subtotal,
             shipping,
@@ -82,11 +96,14 @@ export const useCart = create<CartState>()(
           const newItems = state.items.map((item) =>
             item.id === productId ? { ...item, quantity } : item
           );
-          const subtotal = newItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+          const subtotal = newItems.reduce(
+            (sum, item) => sum + item.price * item.quantity,
+            0
+          );
           const shipping = subtotal > 100 ? 0 : 10;
-          const total = subtotal + shipping - (subtotal * state.discountAmount);
-          
-          return { 
+          const total = subtotal + shipping - subtotal * state.discountAmount;
+
+          return {
             items: newItems,
             subtotal,
             shipping,
@@ -102,10 +119,13 @@ export const useCart = create<CartState>()(
 
           const newItems = state.items.filter((item) => item.id !== productId);
           const newSavedItems = [...state.savedItems, item];
-          
-          const subtotal = newItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
+          const subtotal = newItems.reduce(
+            (sum, item) => sum + item.price * item.quantity,
+            0
+          );
           const shipping = subtotal > 100 ? 0 : 10;
-          const total = subtotal + shipping - (subtotal * state.discountAmount);
+          const total = subtotal + shipping - subtotal * state.discountAmount;
 
           return {
             items: newItems,
@@ -122,12 +142,17 @@ export const useCart = create<CartState>()(
           const item = state.savedItems.find((item) => item.id === productId);
           if (!item) return state;
 
-          const newSavedItems = state.savedItems.filter((item) => item.id !== productId);
+          const newSavedItems = state.savedItems.filter(
+            (item) => item.id !== productId
+          );
           const newItems = [...state.items, item];
-          
-          const subtotal = newItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
+          const subtotal = newItems.reduce(
+            (sum, item) => sum + item.price * item.quantity,
+            0
+          );
           const shipping = subtotal > 100 ? 0 : 10;
-          const total = subtotal + shipping - (subtotal * state.discountAmount);
+          const total = subtotal + shipping - subtotal * state.discountAmount;
 
           return {
             savedItems: newSavedItems,
@@ -145,7 +170,8 @@ export const useCart = create<CartState>()(
           if (!discount) return state;
 
           const discountAmount = discount;
-          const total = state.subtotal + state.shipping - (state.subtotal * discountAmount);
+          const total =
+            state.subtotal + state.shipping - state.subtotal * discountAmount;
 
           return {
             discountCode: code,
@@ -163,18 +189,19 @@ export const useCart = create<CartState>()(
         }));
       },
 
-      clearCart: () => set({ 
-        items: [], 
-        savedItems: [], 
-        discountCode: null, 
-        discountAmount: 0,
-        subtotal: 0,
-        shipping: 0,
-        total: 0,
-      }),
+      clearCart: () =>
+        set({
+          items: [],
+          savedItems: [],
+          discountCode: null,
+          discountAmount: 0,
+          subtotal: 0,
+          shipping: 0,
+          total: 0,
+        }),
     }),
     {
-      name: 'cart-storage',
+      name: "cart-storage",
     }
   )
 );

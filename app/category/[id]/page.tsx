@@ -1,23 +1,47 @@
-import { getProducts, getCategories } from '@/lib/api';
-import { Product } from '@/lib/types';
-import Link from 'next/link';
-import { ShoppingCart, SlidersHorizontal } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import ProductGrid from '@/components/product-grid';
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { getProducts, getCategories } from "@/lib/api";
+import { Product, Category } from "@/lib/types";
+import Link from "next/link";
+import { ShoppingCart, SlidersHorizontal } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import ProductGrid from "@/components/product-grid";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 
-async function getData(categoryId: string) {
+interface CategoryPageProps {
+  params: {
+    id: string;
+  };
+}
+
+interface CategoryData {
+  products: Product[];
+  category: Category | undefined;
+  categories: Category[];
+}
+
+async function getData(categoryId: string): Promise<CategoryData> {
   const [products, categories] = await Promise.all([
     getProducts(0, 50),
     getCategories(),
   ]);
-  
+
   const filteredProducts = products.filter(
-    (product) => product.category.id === parseInt(categoryId)
+    (product: Product) => product.category.id === parseInt(categoryId)
   );
   const currentCategory = categories.find(
-    (category) => category.id === parseInt(categoryId)
+    (category: Category) => category.id === parseInt(categoryId)
   );
 
   return { products: filteredProducts, category: currentCategory, categories };
@@ -25,16 +49,12 @@ async function getData(categoryId: string) {
 
 export async function generateStaticParams() {
   const categories = await getCategories();
-  return categories.map((category) => ({
+  return categories.map((category: Category) => ({
     id: category.id.toString(),
   }));
 }
 
-export default async function CategoryPage({
-  params,
-}: {
-  params: { id: string };
-}) {
+export default async function CategoryPage({ params }: CategoryPageProps) {
   const { products, category, categories } = await getData(params.id);
 
   if (!category) {
@@ -42,7 +62,7 @@ export default async function CategoryPage({
       <div className="container mx-auto px-4 py-16 text-center">
         <h1 className="text-2xl font-bold mb-4">Category not found</h1>
         <p className="text-muted-foreground mb-8">
-          The category you're looking for doesn't exist.
+          The category you&apos;re looking for doesn&apos;t exist.
         </p>
         <Link href="/categories">
           <Button>View All Categories</Button>
@@ -58,7 +78,10 @@ export default async function CategoryPage({
           Home
         </Link>
         <span className="text-muted-foreground">/</span>
-        <Link href="/categories" className="text-muted-foreground hover:text-foreground">
+        <Link
+          href="/categories"
+          className="text-muted-foreground hover:text-foreground"
+        >
           Categories
         </Link>
         <span className="text-muted-foreground">/</span>
@@ -80,12 +103,12 @@ export default async function CategoryPage({
                 <SheetTitle>Categories</SheetTitle>
               </SheetHeader>
               <div className="mt-4 space-y-2">
-                {categories.map((cat) => (
+                {categories.map((cat: Category) => (
                   <Link
                     key={cat.id}
                     href={`/category/${cat.id}`}
                     className={`block p-2 rounded-lg hover:bg-accent ${
-                      cat.id === category?.id ? 'bg-accent' : ''
+                      cat.id === category?.id ? "bg-accent" : ""
                     }`}
                   >
                     {cat.name}
@@ -101,12 +124,12 @@ export default async function CategoryPage({
           <div>
             <h2 className="text-lg font-semibold mb-4">Categories</h2>
             <div className="space-y-2">
-              {categories.map((cat) => (
+              {categories.map((cat: Category) => (
                 <Link
                   key={cat.id}
                   href={`/category/${cat.id}`}
                   className={`block p-2 rounded-lg hover:bg-accent ${
-                    cat.id === category?.id ? 'bg-accent' : ''
+                    cat.id === category?.id ? "bg-accent" : ""
                   }`}
                 >
                   {cat.name}

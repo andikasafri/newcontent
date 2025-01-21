@@ -1,44 +1,56 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { useAuth } from '@/lib/auth';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Label } from '@/components/ui/label';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useToast } from '@/hooks/use-toast';
-import { User, ShieldCheck } from 'lucide-react';
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { useAuth } from "@/lib/auth";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useToast } from "@/hooks/use-toast";
+import { User, ShieldCheck } from "lucide-react";
+
+interface ToastMessage {
+  description: string;
+  title?: string;
+}
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const router = useRouter();
   const { login } = useAuth();
   const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent, isAdmin: boolean) => {
     e.preventDefault();
+    setError("");
+
     try {
       if (isAdmin) {
-        await login('admin@gmail.com', 'admin1234');
+        await login("admin@gmail.com", "admin1234");
         toast({
           description: "Logged in as administrator",
-          icon: <ShieldCheck className="h-4 w-4 text-green-600" />,
         });
       } else {
         await login(email, password);
         toast({
           description: "Logged in successfully",
-          icon: <User className="h-4 w-4" />,
         });
       }
-      router.push('/');
+      router.push("/");
     } catch (err) {
-      setError('Invalid credentials');
+      setError("Invalid credentials");
     }
   };
 
@@ -94,8 +106,11 @@ export default function LoginPage() {
                   Sign In
                 </Button>
                 <p className="text-sm text-center text-muted-foreground">
-                  Don't have an account?{' '}
-                  <Link href="/register" className="text-primary hover:underline">
+                  Don&apos;t have an account?{" "}
+                  <Link
+                    href="/register"
+                    className="text-primary hover:underline"
+                  >
                     Sign up
                   </Link>
                 </p>

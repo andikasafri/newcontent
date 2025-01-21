@@ -1,4 +1,8 @@
-import { Card } from '@/components/ui/card';
+"use client";
+
+import { withAuth } from "@/lib/hoc/withAuth";
+import { useState, useEffect, useCallback } from "react";
+import { Card } from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -6,44 +10,123 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
-import { Order } from '@/lib/types';
-
-// This would come from your API
-const orders: Order[] = [
-  {
-    id: 1,
-    userId: 1,
-    items: [],
-    total: 299.99,
-    status: 'processing',
-    createdAt: '2024-03-20T10:00:00Z',
-    shippingAddress: {
-      street: '123 Main St',
-      city: 'New York',
-      state: 'NY',
-      country: 'USA',
-      zipCode: '10001',
-    },
-    paymentMethod: 'credit_card',
-    trackingNumber: 'TRK123456789',
-  },
-  // Add more mock orders as needed
-];
+} from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Search } from "lucide-react";
+import { Order } from "@/lib/types";
+import { getOrders, updateOrderStatus } from "@/lib/api";
+import { useToast } from "@/hooks/use-toast";
 
 const statusColors = {
-  pending: 'bg-yellow-100 text-yellow-800',
-  processing: 'bg-blue-100 text-blue-800',
-  shipped: 'bg-purple-100 text-purple-800',
-  delivered: 'bg-green-100 text-green-800',
-  cancelled: 'bg-red-100 text-red-800',
-};
+  pending: "bg-yellow-100 text-yellow-800",
+  processing: "bg-blue-100 text-blue-800",
+  shipped: "bg-purple-100 text-purple-800",
+  delivered: "bg-green-100 text-green-800",
+  cancelled: "bg-red-100 text-red-800",
+} as const;
 
-export default function OrdersPage() {
+function OrdersPage() {
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const { toast } = useToast();
+
+  const fetchOrders = useCallback(async () => {
+    try {
+      const data = await getOrders();
+      setOrders(data);
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        description: "Failed to fetch orders",
+      });
+    } finally {
+      setLoading(false);
+    }
+  }, [toast]);
+
+  useEffect(() => {
+    fetchOrders();
+  }, [fetchOrders]);
+
+  const handleStatusUpdate = async (
+    orderId: number,
+    newStatus: Order["status"]
+  ) => {
+    try {
+      await updateOrderStatus(orderId, newStatus);
+      setOrders(
+        orders.map((order) =>
+          order.id === orderId ? { ...order, status: newStatus } : order
+        )
+      );
+      toast({
+        description: "Order status updated successfully",
+      });
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        description: "Failed to update order status",
+      });
+    }
+  };
+
+  const filteredOrders = orders.filter((order) => {
+    const matchesSearch =
+      order.id.toString().includes(search) ||
+      order.shippingAddress.city.toLowerCase().includes(search.toLowerCase()) ||
+      order.shippingAddress.country
+        .toLowerCase()
+        .includes(search.toLowerCase());
+
+    const matchesStatus =
+      statusFilter === "all" || order.status === statusFilter;
+
+    return matchesSearch && matchesStatus;
+  });
+
+  if (loading) {
+    return <div>Loading orders...</div>;
+  }
+
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold">Orders</h1>
+      <div className="flex justify-between items-center">
+        <h1 className="text-3xl font-bold">Orders</h1>
+        <div className="flex gap-4">
+          <div className="relative w-64">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+            <Input
+              placeholder="Search orders..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger className="w-40">
+              <SelectValue placeholder="Filter by status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Status</SelectItem>
+              <SelectItem value="pending">Pending</SelectItem>
+              <SelectItem value="processing">Processing</SelectItem>
+              <SelectItem value="shipped">Shipped</SelectItem>
+              <SelectItem value="delivered">Delivered</SelectItem>
+              <SelectItem value="cancelled">Cancelled</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
 
       <Card>
         <Table>
@@ -54,36 +137,63 @@ export default function OrdersPage() {
               <TableHead>Customer</TableHead>
               <TableHead>Total</TableHead>
               <TableHead>Status</TableHead>
-              <TableHead>Tracking</TableHead>
+              <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {orders.map((order) => (
-              <TableRow key={order.id}>
-                <TableCell>#{order.id}</TableCell>
-                <TableCell>
-                  {new Date(order.createdAt).toLocaleDateString()}
-                </TableCell>
-                <TableCell>
-                  {order.shippingAddress.city}, {order.shippingAddress.country}
-                </TableCell>
-                <TableCell>${order.total.toFixed(2)}</TableCell>
-                <TableCell>
-                  <Badge
-                    variant="secondary"
-                    className={statusColors[order.status]}
-                  >
-                    {order.status}
-                  </Badge>
-                </TableCell>
-                <TableCell>
-                  {order.trackingNumber || 'Not available'}
+            {filteredOrders.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={6} className="text-center">
+                  No orders found
                 </TableCell>
               </TableRow>
-            ))}
+            ) : (
+              filteredOrders.map((order) => (
+                <TableRow key={order.id}>
+                  <TableCell>#{order.id}</TableCell>
+                  <TableCell>
+                    {new Date(order.createdAt).toLocaleDateString()}
+                  </TableCell>
+                  <TableCell>
+                    {order.shippingAddress.city},{" "}
+                    {order.shippingAddress.country}
+                  </TableCell>
+                  <TableCell>${order.total.toFixed(2)}</TableCell>
+                  <TableCell>
+                    <Badge
+                      variant="secondary"
+                      className={statusColors[order.status]}
+                    >
+                      {order.status}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    <Select
+                      value={order.status}
+                      onValueChange={(value) =>
+                        handleStatusUpdate(order.id, value as Order["status"])
+                      }
+                    >
+                      <SelectTrigger className="w-32">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="pending">Pending</SelectItem>
+                        <SelectItem value="processing">Processing</SelectItem>
+                        <SelectItem value="shipped">Shipped</SelectItem>
+                        <SelectItem value="delivered">Delivered</SelectItem>
+                        <SelectItem value="cancelled">Cancelled</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
           </TableBody>
         </Table>
       </Card>
     </div>
   );
 }
+
+export default withAuth(OrdersPage, { requireAdmin: true });

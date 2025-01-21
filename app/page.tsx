@@ -1,18 +1,24 @@
-import { getProducts, getCategories } from '@/lib/api';
-import { Product, Category } from '@/lib/types';
-import Link from 'next/link';
-import { ArrowRight } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { getProducts, getCategories } from "@/lib/api";
+import { Product, Category } from "@/lib/types";
+import Link from "next/link";
+import Image from "next/image";
+import { ArrowRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 
-async function getData() {
+interface HomePageData {
+  products: Product[];
+  categories: Category[];
+}
+
+async function getData(): Promise<HomePageData> {
   const [products, categories] = await Promise.all([
     getProducts(0, 6), // Limit to 6 featured products
     getCategories(),
   ]);
-  return { 
-    products, 
-    categories: categories.slice(0, 6) // Limit to 6 categories
+  return {
+    products,
+    categories: categories.slice(0, 6), // Limit to 6 categories
   };
 }
 
@@ -32,19 +38,24 @@ export default async function Home() {
         </div>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
           {categories.map((category: Category) => (
-            <Link 
-              key={category.id} 
+            <Link
+              key={category.id}
               href={`/category/${category.id}`}
               className="group relative overflow-hidden rounded-lg"
             >
               <div className="aspect-[4/3] relative">
-                <img
+                <Image
                   src={category.image}
                   alt={category.name}
-                  className="object-cover w-full h-full transition-transform group-hover:scale-105"
+                  fill
+                  sizes="(max-width: 768px) 50vw, 33vw"
+                  className="object-cover transition-transform group-hover:scale-105"
+                  priority={category.id <= 3} // Prioritize first 3 categories
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-black/0 flex items-end p-4">
-                  <h3 className="text-white text-xl font-semibold">{category.name}</h3>
+                  <h3 className="text-white text-xl font-semibold">
+                    {category.name}
+                  </h3>
                 </div>
               </div>
             </Link>
@@ -66,17 +77,19 @@ export default async function Home() {
             <Card key={product.id} className="group overflow-hidden">
               <Link href={`/product/${product.id}`}>
                 <div className="aspect-[4/3] relative overflow-hidden">
-                  <img
+                  <Image
                     src={product.images[0]}
                     alt={product.title}
-                    className="object-cover w-full h-full transition-transform group-hover:scale-105"
+                    fill
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    className="object-cover transition-transform group-hover:scale-105"
                   />
                 </div>
                 <CardContent className="p-4">
-                  <p className="text-muted-foreground line-clamp-2 mb-4">{product.description}</p>
-                  <Button className="w-full">
-                    View Details
-                  </Button>
+                  <p className="text-muted-foreground line-clamp-2 mb-4">
+                    {product.description}
+                  </p>
+                  <Button className="w-full">View Details</Button>
                 </CardContent>
               </Link>
             </Card>

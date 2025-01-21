@@ -1,34 +1,38 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { useCart } from '@/lib/cart';
-import { useAuth } from '@/lib/auth';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Card } from '@/components/ui/card';
-import { CheckoutFormData } from '@/lib/types';
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import Image from "next/image";
+import { useCart } from "@/lib/cart";
+import { useAuth } from "@/lib/auth";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card } from "@/components/ui/card";
+import { CheckoutFormData } from "@/lib/types";
+import { useToast } from "@/hooks/use-toast";
 
 export default function CheckoutPage() {
   const router = useRouter();
   const { user } = useAuth();
   const { items, total, clearCart } = useCart();
+  const { toast } = useToast();
+
   const [formData, setFormData] = useState<CheckoutFormData>({
-    email: user?.email || '',
-    name: user?.name || '',
-    address: '',
-    city: '',
-    country: '',
-    postalCode: '',
-    cardNumber: '',
-    cardExpiry: '',
-    cardCvc: '',
+    email: user?.email || "",
+    name: user?.name || "",
+    address: "",
+    city: "",
+    country: "",
+    postalCode: "",
+    cardNumber: "",
+    cardExpiry: "",
+    cardCvc: "",
   });
 
   useEffect(() => {
     if (items.length === 0) {
-      router.push('/cart');
+      router.push("/cart");
     }
   }, [items.length, router]);
 
@@ -38,14 +42,20 @@ export default function CheckoutPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // In a real application, you would:
-    // 1. Validate the form data
-    // 2. Process the payment
-    // 3. Create the order in your backend
-    // 4. Show a success message
-    // For now, we'll just simulate a successful checkout
-    clearCart();
-    router.push('/');
+    try {
+      // Simulate order processing
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      clearCart();
+      toast({
+        description: "Order placed successfully!",
+      });
+      router.push("/order-confirmation");
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        description: "Failed to place order. Please try again.",
+      });
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -60,7 +70,9 @@ export default function CheckoutPage() {
         <div>
           <form onSubmit={handleSubmit} className="space-y-8">
             <Card className="p-6">
-              <h2 className="text-xl font-semibold mb-4">Shipping Information</h2>
+              <h2 className="text-xl font-semibold mb-4">
+                Shipping Information
+              </h2>
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
@@ -131,7 +143,9 @@ export default function CheckoutPage() {
             </Card>
 
             <Card className="p-6">
-              <h2 className="text-xl font-semibold mb-4">Payment Information</h2>
+              <h2 className="text-xl font-semibold mb-4">
+                Payment Information
+              </h2>
               <div className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="cardNumber">Card Number</Label>
@@ -141,6 +155,8 @@ export default function CheckoutPage() {
                     value={formData.cardNumber}
                     onChange={handleChange}
                     required
+                    maxLength={16}
+                    pattern="\d*"
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
@@ -153,6 +169,7 @@ export default function CheckoutPage() {
                       value={formData.cardExpiry}
                       onChange={handleChange}
                       required
+                      maxLength={5}
                     />
                   </div>
                   <div className="space-y-2">
@@ -163,6 +180,8 @@ export default function CheckoutPage() {
                       value={formData.cardCvc}
                       onChange={handleChange}
                       required
+                      maxLength={4}
+                      pattern="\d*"
                     />
                   </div>
                 </div>
@@ -182,10 +201,13 @@ export default function CheckoutPage() {
               {items.map((item) => (
                 <div key={item.id} className="flex gap-4">
                   <div className="w-20 h-20 relative rounded-md overflow-hidden">
-                    <img
+                    <Image
                       src={item.images[0]}
                       alt={item.title}
-                      className="object-cover w-full h-full"
+                      fill
+                      sizes="(max-width: 80px) 100vw, 80px"
+                      className="object-cover"
+                      priority={true}
                     />
                   </div>
                   <div className="flex-1">

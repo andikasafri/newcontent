@@ -1,11 +1,12 @@
-'use client';
+"use client";
 
-import { Product } from '@/lib/types';
-import { useCart } from '@/lib/cart';
-import { ShoppingCart } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import Link from 'next/link';
-import { useToast } from '@/hooks/use-toast';
+import { Product } from "@/lib/types";
+import { useCart } from "@/lib/cart";
+import { ShoppingCart } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import Image from "next/image";
+import { useToast } from "@/hooks/use-toast";
 
 interface ProductDetailsProps {
   product: Product;
@@ -36,7 +37,7 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
           Home
         </Link>
         <span className="text-muted-foreground">/</span>
-        <Link 
+        <Link
           href={`/category/${product.category.id}`}
           className="text-muted-foreground hover:text-foreground"
         >
@@ -49,19 +50,27 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <div className="space-y-4">
           <div className="aspect-square relative overflow-hidden rounded-lg">
-            <img
+            <Image
               src={product.images[0]}
               alt={product.title}
-              className="object-cover w-full h-full"
+              fill
+              sizes="(max-width: 768px) 100vw, 50vw"
+              priority
+              className="object-cover"
             />
           </div>
           <div className="grid grid-cols-4 gap-4">
             {product.images.slice(1).map((image, index) => (
-              <div key={index} className="aspect-square relative overflow-hidden rounded-lg">
-                <img
+              <div
+                key={index}
+                className="aspect-square relative overflow-hidden rounded-lg"
+              >
+                <Image
                   src={image}
                   alt={`${product.title} - ${index + 2}`}
-                  className="object-cover w-full h-full"
+                  fill
+                  sizes="(max-width: 768px) 25vw, 12.5vw"
+                  className="object-cover"
                 />
               </div>
             ))}
@@ -70,7 +79,9 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
         <div className="space-y-6">
           <div>
             <h1 className="text-3xl font-bold">{product.title}</h1>
-            <p className="text-3xl font-bold text-primary mt-2">${product.price}</p>
+            <p className="text-3xl font-bold text-primary mt-2">
+              ${product.price}
+            </p>
           </div>
           <div>
             <h2 className="text-xl font-semibold mb-2">Description</h2>
@@ -78,7 +89,7 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
           </div>
           <div>
             <h2 className="text-xl font-semibold mb-2">Category</h2>
-            <Link 
+            <Link
               href={`/category/${product.category.id}`}
               className="text-primary hover:underline"
             >

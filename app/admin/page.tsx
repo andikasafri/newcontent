@@ -1,7 +1,50 @@
+'use client';
+
+import { withAuth } from '@/lib/hoc/withAuth';
 import { Card } from '@/components/ui/card';
 import { BarChart, DollarSign, Package, Users } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { getStats } from '@/lib/api';
+import { Skeleton } from '@/components/ui/skeleton';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
-export default function AdminDashboard() {
+function AdminDashboard() {
+  const [stats, setStats] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const data = await getStats();
+        setStats(data);
+      } catch (error) {
+        console.error('Failed to fetch stats:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchStats();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <h1 className="text-3xl font-bold">Dashboard</h1>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Card key={i} className="p-6">
+              <Skeleton className="h-20" />
+            </Card>
+          ))}
+        </div>
+        <Card className="p-6">
+          <Skeleton className="h-[400px]" />
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <h1 className="text-3xl font-bold">Dashboard</h1>
@@ -14,7 +57,7 @@ export default function AdminDashboard() {
             </div>
             <div>
               <p className="text-sm text-muted-foreground">Total Revenue</p>
-              <p className="text-2xl font-bold">$45,231.89</p>
+              <p className="text-2xl font-bold">${stats?.revenue.toFixed(2)}</p>
               <p className="text-sm text-green-600">+20.1% from last month</p>
             </div>
           </div>
@@ -27,7 +70,7 @@ export default function AdminDashboard() {
             </div>
             <div>
               <p className="text-sm text-muted-foreground">Total Customers</p>
-              <p className="text-2xl font-bold">2,345</p>
+              <p className="text-2xl font-bold">{stats?.customers}</p>
               <p className="text-sm text-green-600">+12.3% from last month</p>
             </div>
           </div>
@@ -40,7 +83,7 @@ export default function AdminDashboard() {
             </div>
             <div>
               <p className="text-sm text-muted-foreground">Total Orders</p>
-              <p className="text-2xl font-bold">1,789</p>
+              <p className="text-2xl font-bold">{stats?.orders}</p>
               <p className="text-sm text-green-600">+8.2% from last month</p>
             </div>
           </div>
@@ -53,12 +96,29 @@ export default function AdminDashboard() {
             </div>
             <div>
               <p className="text-sm text-muted-foreground">Conversion Rate</p>
-              <p className="text-2xl font-bold">3.24%</p>
+              <p className="text-2xl font-bold">{stats?.conversionRate}%</p>
               <p className="text-sm text-red-600">-1.2% from last month</p>
             </div>
           </div>
         </Card>
       </div>
+
+      <Card className="p-6">
+        <h2 className="text-xl font-semibold mb-6">Revenue Overview</h2>
+        <div className="h-[400px]">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={stats?.revenueData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="date" />
+              <YAxis />
+              <Tooltip />
+              <Line type="monotone" dataKey="revenue" stroke="hsl(var(--primary))" />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+      </Card>
     </div>
   );
 }
+
+export default withAuth(AdminDashboard, { requireAdmin: true });

@@ -1,30 +1,52 @@
-import { getProducts } from '@/lib/api';
-import { Product } from '@/lib/types';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Plus, Search } from 'lucide-react';
-import ProductTable from '@/components/admin/product-table';
-import { Suspense } from 'react';
-import { ProductTableSkeleton } from '@/components/admin/product-table-skeleton';
+"use client";
 
-export const dynamic = 'force-dynamic'; // Enable SSR
+import { useRouter, useSearchParams } from "next/navigation";
+import { useState, useEffect } from "react";
+import { getProducts } from "@/lib/api";
+import { Product } from "@/lib/types";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Plus, Search } from "lucide-react";
+import ProductTable from "@/components/admin/product-table";
+import { ProductTableSkeleton } from "@/components/admin/product-table-skeleton";
 
-interface SearchParams {
-  page?: string;
-  search?: string;
-  category?: string;
-}
+export default function ProductsPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [loading, setLoading] = useState(true);
+  const [products, setProducts] = useState<Product[]>([]);
 
-export default async function ProductsPage({
-  searchParams,
-}: {
-  searchParams: SearchParams;
-}) {
-  const page = Number(searchParams.page) || 1;
-  const search = searchParams.search || '';
-  const category = searchParams.category || '';
-  
-  const products = await getProducts((page - 1) * 10, 10);
+  const page = Number(searchParams.get("page")) || 1;
+  const search = searchParams.get("search") || "";
+  const category = searchParams.get("category") || "";
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const data = await getProducts((page - 1) * 10, 10);
+        setProducts(data);
+      } catch (error) {
+        console.error("Failed to fetch products:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, [page]);
+
+  const handleSearch = (searchTerm: string) => {
+    // Create a new URLSearchParams instance with the current search params
+    const params = new URLSearchParams(Array.from(searchParams.entries()));
+
+    if (searchTerm) {
+      params.set("search", searchTerm);
+    } else {
+      params.delete("search");
+    }
+    params.set("page", "1");
+    router.push(`/admin/products?${params.toString()}`);
+  };
 
   return (
     <div className="space-y-6">
@@ -43,14 +65,17 @@ export default async function ProductsPage({
             placeholder="Search products..."
             className="pl-10"
             defaultValue={search}
+            onChange={(e) => handleSearch(e.target.value)}
           />
         </div>
         <Button variant="outline">Filters</Button>
       </div>
 
-      <Suspense fallback={<ProductTableSkeleton />}>
+      {loading ? (
+        <ProductTableSkeleton />
+      ) : (
         <ProductTable products={products} />
-      </Suspense>
+      )}
     </div>
   );
 }

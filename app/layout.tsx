@@ -6,6 +6,9 @@ import { ShoppingCart, User, LayoutDashboard } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/lib/auth';
+import { AppProvider } from '@/lib/providers/AppProvider';
+import { Suspense } from 'react';
+import { Toaster } from '@/components/ui/toaster';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -19,42 +22,51 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <header className="border-b">
-          <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-            <Link href="/" className="text-2xl font-bold">
-              NextShop
-            </Link>
-            <nav className="flex items-center gap-4">
-              <Link href="/cart">
-                <Button variant="ghost" size="icon">
-                  <ShoppingCart className="h-5 w-5" />
-                </Button>
+        <AppProvider>
+          <header className="border-b">
+            <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+              <Link href="/" className="text-2xl font-bold">
+                NextShop
               </Link>
-              {isAdmin && (
-                <Link href="/admin">
+              <nav className="flex items-center gap-4">
+                <Link href="/cart">
                   <Button variant="ghost" size="icon">
-                    <LayoutDashboard className="h-5 w-5" />
+                    <ShoppingCart className="h-5 w-5" />
                   </Button>
                 </Link>
-              )}
-              {user ? (
-                <div className="flex items-center gap-2">
-                  <span className="text-sm">{user.name}</span>
-                  <Button variant="ghost" size="sm" onClick={logout}>
-                    Logout
-                  </Button>
-                </div>
-              ) : (
-                <Link href="/login">
-                  <Button variant="ghost" size="icon">
-                    <User className="h-5 w-5" />
-                  </Button>
-                </Link>
-              )}
-            </nav>
-          </div>
-        </header>
-        {children}
+                {isAdmin && (
+                  <Link href="/admin">
+                    <Button variant="ghost" size="icon">
+                      <LayoutDashboard className="h-5 w-5" />
+                    </Button>
+                  </Link>
+                )}
+                {user ? (
+                  <div className="flex items-center gap-2">
+                    <Link href="/account">
+                      <Button variant="ghost" size="icon">
+                        <User className="h-5 w-5" />
+                      </Button>
+                    </Link>
+                    <Button variant="ghost" size="sm" onClick={logout}>
+                      Logout
+                    </Button>
+                  </div>
+                ) : (
+                  <Link href="/login">
+                    <Button variant="ghost" size="icon">
+                      <User className="h-5 w-5" />
+                    </Button>
+                  </Link>
+                )}
+              </nav>
+            </div>
+          </header>
+          <Suspense fallback={<div>Loading...</div>}>
+            {children}
+          </Suspense>
+          <Toaster />
+        </AppProvider>
       </body>
     </html>
   );
