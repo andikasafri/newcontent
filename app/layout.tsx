@@ -1,22 +1,21 @@
+'use client';
+
 import './globals.css';
-import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
-import { ShoppingCart, User } from 'lucide-react';
+import { ShoppingCart, User, LayoutDashboard } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import { useAuth } from '@/lib/auth';
 
 const inter = Inter({ subsets: ['latin'] });
-
-export const metadata: Metadata = {
-  title: 'NextShop - Modern E-commerce',
-  description: 'A modern e-commerce platform built with Next.js',
-};
 
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const { user, isAdmin, logout } = useAuth();
+
   return (
     <html lang="en">
       <body className={inter.className}>
@@ -31,11 +30,27 @@ export default function RootLayout({
                   <ShoppingCart className="h-5 w-5" />
                 </Button>
               </Link>
-              <Link href="/login">
-                <Button variant="ghost" size="icon">
-                  <User className="h-5 w-5" />
-                </Button>
-              </Link>
+              {isAdmin && (
+                <Link href="/admin">
+                  <Button variant="ghost" size="icon">
+                    <LayoutDashboard className="h-5 w-5" />
+                  </Button>
+                </Link>
+              )}
+              {user ? (
+                <div className="flex items-center gap-2">
+                  <span className="text-sm">{user.name}</span>
+                  <Button variant="ghost" size="sm" onClick={logout}>
+                    Logout
+                  </Button>
+                </div>
+              ) : (
+                <Link href="/login">
+                  <Button variant="ghost" size="icon">
+                    <User className="h-5 w-5" />
+                  </Button>
+                </Link>
+              )}
             </nav>
           </div>
         </header>

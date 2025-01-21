@@ -1,16 +1,19 @@
 import { getProducts, getCategories } from '@/lib/api';
 import { Product, Category } from '@/lib/types';
 import Link from 'next/link';
-import { ShoppingCart } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 
 async function getData() {
   const [products, categories] = await Promise.all([
-    getProducts(0, 8),
+    getProducts(0, 6), // Limit to 6 featured products
     getCategories(),
   ]);
-  return { products, categories };
+  return { 
+    products, 
+    categories: categories.slice(0, 6) // Limit to 6 categories
+  };
 }
 
 export default async function Home() {
@@ -19,21 +22,28 @@ export default async function Home() {
   return (
     <main className="container mx-auto px-4 py-8">
       <section className="mb-12">
-        <h2 className="text-3xl font-bold mb-6">Featured Categories</h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-3xl font-bold">Featured Categories</h2>
+          <Link href="/categories">
+            <Button variant="ghost">
+              View All <ArrowRight className="ml-2 h-4 w-4" />
+            </Button>
+          </Link>
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
           {categories.map((category: Category) => (
             <Link 
               key={category.id} 
               href={`/category/${category.id}`}
               className="group relative overflow-hidden rounded-lg"
             >
-              <div className="aspect-square relative">
+              <div className="aspect-[4/3] relative">
                 <img
                   src={category.image}
                   alt={category.name}
                   className="object-cover w-full h-full transition-transform group-hover:scale-105"
                 />
-                <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-black/0 flex items-end p-4">
                   <h3 className="text-white text-xl font-semibold">{category.name}</h3>
                 </div>
               </div>
@@ -43,30 +53,32 @@ export default async function Home() {
       </section>
 
       <section>
-        <h2 className="text-3xl font-bold mb-6">Featured Products</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-3xl font-bold">Featured Products</h2>
+          <Link href="/products">
+            <Button variant="ghost">
+              View All <ArrowRight className="ml-2 h-4 w-4" />
+            </Button>
+          </Link>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {products.map((product: Product) => (
-            <Card key={product.id} className="group">
-              <CardHeader className="p-0">
-                <div className="aspect-square relative overflow-hidden rounded-t-lg">
+            <Card key={product.id} className="group overflow-hidden">
+              <Link href={`/product/${product.id}`}>
+                <div className="aspect-[4/3] relative overflow-hidden">
                   <img
                     src={product.images[0]}
                     alt={product.title}
                     className="object-cover w-full h-full transition-transform group-hover:scale-105"
                   />
                 </div>
-              </CardHeader>
-              <CardContent className="p-4">
-                <CardTitle className="line-clamp-1">{product.title}</CardTitle>
-                <p className="text-2xl font-bold text-primary mt-2">${product.price}</p>
-                <p className="text-muted-foreground line-clamp-2 mt-2">{product.description}</p>
-              </CardContent>
-              <CardFooter className="p-4 pt-0">
-                <Button className="w-full">
-                  <ShoppingCart className="mr-2 h-4 w-4" />
-                  Add to Cart
-                </Button>
-              </CardFooter>
+                <CardContent className="p-4">
+                  <p className="text-muted-foreground line-clamp-2 mb-4">{product.description}</p>
+                  <Button className="w-full">
+                    View Details
+                  </Button>
+                </CardContent>
+              </Link>
             </Card>
           ))}
         </div>
