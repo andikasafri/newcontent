@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useCart } from '@/lib/cart';
 import { useAuth } from '@/lib/auth';
@@ -26,8 +26,13 @@ export default function CheckoutPage() {
     cardCvc: '',
   });
 
+  useEffect(() => {
+    if (items.length === 0) {
+      router.push('/cart');
+    }
+  }, [items.length, router]);
+
   if (items.length === 0) {
-    router.push('/cart');
     return null;
   }
 
@@ -165,7 +170,7 @@ export default function CheckoutPage() {
             </Card>
 
             <Button type="submit" className="w-full">
-              Place Order (${total().toFixed(2)})
+              Place Order (${total.toFixed(2)})
             </Button>
           </form>
         </div>
@@ -197,7 +202,7 @@ export default function CheckoutPage() {
               <div className="border-t pt-4 mt-4">
                 <div className="flex justify-between">
                   <span>Subtotal</span>
-                  <span>${total().toFixed(2)}</span>
+                  <span>${total.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Shipping</span>
@@ -205,7 +210,7 @@ export default function CheckoutPage() {
                 </div>
                 <div className="flex justify-between font-bold text-lg mt-2">
                   <span>Total</span>
-                  <span>${total().toFixed(2)}</span>
+                  <span>${total.toFixed(2)}</span>
                 </div>
               </div>
             </div>

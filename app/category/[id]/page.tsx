@@ -23,12 +23,33 @@ async function getData(categoryId: string) {
   return { products: filteredProducts, category: currentCategory, categories };
 }
 
+export async function generateStaticParams() {
+  const categories = await getCategories();
+  return categories.map((category) => ({
+    id: category.id.toString(),
+  }));
+}
+
 export default async function CategoryPage({
   params,
 }: {
   params: { id: string };
 }) {
   const { products, category, categories } = await getData(params.id);
+
+  if (!category) {
+    return (
+      <div className="container mx-auto px-4 py-16 text-center">
+        <h1 className="text-2xl font-bold mb-4">Category not found</h1>
+        <p className="text-muted-foreground mb-8">
+          The category you're looking for doesn't exist.
+        </p>
+        <Link href="/categories">
+          <Button>View All Categories</Button>
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto px-4 py-8">
