@@ -1,4 +1,3 @@
-import { Suspense } from 'react';
 import { getProducts } from '@/lib/api';
 import { Product } from '@/lib/types';
 import Link from 'next/link';
@@ -6,9 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Search } from 'lucide-react';
 import ProductGrid from '@/components/product-grid';
-import { Skeleton } from '@/components/ui/skeleton';
 
-export const dynamic = 'force-dynamic';
+export const dynamic = 'force-dynamic'; // Enable SSR
 
 interface SearchParams {
   page?: string;
@@ -16,21 +14,17 @@ interface SearchParams {
   category?: string;
 }
 
-interface ProductsPageProps {
+export default async function ProductsPage({
+  searchParams,
+}: {
   searchParams: SearchParams;
-}
-
-async function ProductList({ searchParams }: ProductsPageProps) {
+}) {
   const page = Number(searchParams.page) || 1;
   const search = searchParams.search || '';
   const category = searchParams.category || '';
   
   const products = await getProducts((page - 1) * 12, 12);
 
-  return <ProductGrid products={products} />;
-}
-
-export default async function ProductsPage({ searchParams }: ProductsPageProps) {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex items-center gap-2 mb-8">
@@ -49,38 +43,32 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
             <Input
               placeholder="Search products..."
               className="pl-10"
-              defaultValue={searchParams.search}
+              defaultValue={search}
             />
           </div>
           <Button variant="outline">Filters</Button>
         </div>
       </div>
 
-      <Suspense 
-        fallback={
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {Array.from({ length: 12 }).map((_, i) => (
-              <div key={i} className="space-y-4">
-                <Skeleton className="aspect-square rounded-lg" />
-                <Skeleton className="h-4 w-2/3" />
-                <Skeleton className="h-4 w-1/2" />
-              </div>
-            ))}
-          </div>
-        }
-      >
-        <ProductList searchParams={searchParams} />
-      </Suspense>
+      <ProductGrid products={products} />
 
       <div className="mt-8 flex justify-center">
         <div className="flex gap-2">
           <Button
             variant="outline"
-            disabled={Number(searchParams.page || 1) === 1}
+            disabled={page === 1}
+            onClick={() => {
+              // Handle pagination
+            }}
           >
             Previous
           </Button>
-          <Button variant="outline">
+          <Button
+            variant="outline"
+            onClick={() => {
+              // Handle pagination
+            }}
+          >
             Next
           </Button>
         </div>
