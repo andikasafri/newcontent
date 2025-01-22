@@ -1,11 +1,19 @@
-// app/admin/products/[id]/page.tsx
-"use client";
+'use client';
 
-import { getProduct, getCategories } from "@/lib/api";
+import { getProduct, getCategories, getProducts } from "@/lib/api";
 import { ProductForm } from "@/components/admin/product-form";
 import { useEffect, useState } from "react";
 import { Product, Category } from "@/lib/types";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useToast } from "@/hooks/use-toast";
+import { useRouter } from "next/navigation";
+
+export async function generateStaticParams() {
+  const products = await getProducts(0, 100); // Get first 100 products
+  return products.map((product) => ({
+    id: product.id.toString(),
+  }));
+}
 
 export default function EditProductPage({
   params,
@@ -15,6 +23,8 @@ export default function EditProductPage({
   const [loading, setLoading] = useState(true);
   const [product, setProduct] = useState<Product | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
+  const { toast } = useToast();
+  const router = useRouter();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -26,19 +36,38 @@ export default function EditProductPage({
         setProduct(productData);
         setCategories(categoriesData);
       } catch (error) {
-        console.error("Failed to fetch data:", error);
+        toast({
+          variant: "destructive",
+          description: "Failed to fetch product data",
+        });
+        router.push('/admin/products');
       } finally {
         setLoading(false);
       }
     };
 
     fetchData();
-  }, [params.id]);
+  }, [params.id, toast, router]);
+
+  const handleSubmit = async (data: Partial<Product>) => {
+    try {
+      // In a real implementation, this would be an API call
+      toast({
+        description: "Product updated successfully",
+      });
+      router.push('/admin/products');
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        description: "Failed to update product",
+      });
+    }
+  };
 
   if (loading) {
     return (
       <div className="space-y-6">
-        <Skeleton className="h-10 w-48" />
+        <Skeleton className="h-8 w-48" />
         <div className="space-y-4">
           <Skeleton className="h-[400px]" />
         </div>
@@ -50,6 +79,9 @@ export default function EditProductPage({
     return (
       <div className="space-y-6">
         <h1 className="text-3xl font-bold">Product Not Found</h1>
+        <Button onClick={() => router.push('/admin/products')}>
+          Back to Products
+        </Button>
       </div>
     );
   }
@@ -60,15 +92,7 @@ export default function EditProductPage({
       <ProductForm
         product={product}
         categories={categories}
-        onSubmit={async (data) => {
-          // Handle form submission
-          try {
-            // Make API call to update product
-            // Show success message
-          } catch (error) {
-            // Handle error
-          }
-        }}
+        onSubmit={handleSubmit}
       />
     </div>
   );

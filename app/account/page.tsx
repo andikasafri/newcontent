@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { withAuth } from '@/lib/hoc/withAuth';
 import { useAuth } from '@/lib/auth';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -8,18 +9,70 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useWishlist } from '@/lib/hooks/use-wishlist';
+import { getUserOrders, updateUserProfile, updatePassword } from '@/lib/api';
+import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
-import { useState } from 'react';
 
 function AccountPage() {
-  const { user } = useAuth();
+  const { user, updateProfile } = useAuth();
   const { items: wishlistItems } = useWishlist();
-  const [name, setName] = useState(user?.name || '');
-  const [email, setEmail] = useState(user?.email || '');
+  const { toast } = useToast();
+  const [loading, setLoading] = useState(false);
+  const [formData, setFormData] = useState({
+    name: user?.name || '',
+    email: user?.email || '',
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: '',
+  });
 
   const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Implement profile update logic
+    setLoading(true);
+    try {
+      await updateUserProfile(user!.id, {
+        name: formData.name,
+        email: formData.email,
+      });
+      await updateProfile({ name: formData.name, email: formData.email });
+      toast({
+        description: 'Profile updated successfully',
+      });
+    } catch (error) {
+      toast({
+        variant: 'destructive',
+        description: 'Failed to update profile',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUpdatePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (formData.newPassword !== formData.confirmPassword) {
+      toast({
+        variant: 'destructive',
+        description: 'Passwords do not match',
+      });
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await updatePassword(user!.id, formData.currentPassword, formData.newPassword);
+      setFormData({ ...formData, currentPassword: '', newPassword: '', confirmPassword: '' });
+      toast({
+        description: 'Password updated successfully',
+      });
+    } catch (error) {
+      toast({
+        variant: 'destructive',
+        description: 'Failed to update password',
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -31,6 +84,7 @@ function AccountPage() {
           <TabsTrigger value="profile">Profile</TabsTrigger>
           <TabsTrigger value="orders">Orders</TabsTrigger>
           <TabsTrigger value="wishlist">Wishlist</TabsTrigger>
+          <TabsTrigger value="security">Security</TabsTrigger>
         </TabsList>
 
         <TabsContent value="profile">
@@ -44,8 +98,8 @@ function AccountPage() {
                   <Label htmlFor="name">Name</Label>
                   <Input
                     id="name"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   />
                 </div>
                 <div className="space-y-2">
@@ -53,11 +107,55 @@ function AccountPage() {
                   <Input
                     id="email"
                     type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   />
                 </div>
-                <Button type="submit">Update Profile</Button>
+                <Button type="submit" disabled={loading}>
+                  Update Profile
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="security">
+          <Card>
+            <CardHeader>
+              <CardTitle>Change Password</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleUpdatePassword} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="currentPassword">Current Password</Label>
+                  <Input
+                    id="currentPassword"
+                    type="password"
+                    value={formData.currentPassword}
+                    onChange={(e) => setFormData({ ...formData, currentPassword: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="newPassword">New Password</Label>
+                  <Input
+                    id="newPassword"
+                    type="password"
+                    value={formData.newPassword}
+                    onChange={(e) => setFormData({ ...formData, newPassword: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="confirmPassword">Confirm New Password</Label>
+                  <Input
+                    id="confirmPassword"
+                    type="password"
+                    value={formData.confirmPassword}
+                    onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                  />
+                </div>
+                <Button type="submit" disabled={loading}>
+                  Update Password
+                </Button>
               </form>
             </CardContent>
           </Card>
@@ -69,8 +167,7 @@ function AccountPage() {
               <CardTitle>Order History</CardTitle>
             </CardHeader>
             <CardContent>
-              {/* Implement order history display */}
-              <p className="text-muted-foreground">No orders found.</p>
+              {/* Order history will be implemented here */}
             </CardContent>
           </Card>
         </TabsContent>
@@ -81,13 +178,13 @@ function AccountPage() {
               <CardTitle>My Wishlist</CardTitle>
             </CardHeader>
             <CardContent>
-              {wishlistItems.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {/* Map through wishlist items */}
-                </div>
-              ) : (
-                <p className="text-muted-foreground">Your wishlist is empty.</p>
-              )}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {wishlistItems.map((productId) => (
+                  <Link key={productId} href={`/product/${productId}`}>
+                    {/* Wishlist item card */}
+                  </Link>
+                ))}
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
