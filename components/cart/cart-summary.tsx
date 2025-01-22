@@ -17,6 +17,7 @@ function CartSummary() {
     total,
     discountCode,
     discountAmount,
+    giftWrapFee,
     applyDiscount,
   } = useCart();
   const { toast } = useToast();
@@ -62,6 +63,12 @@ function CartSummary() {
             <span>Shipping</span>
             <span>{shipping > 0 ? `$${shipping.toFixed(2)}` : "Free"}</span>
           </div>
+          {giftWrapFee > 0 && (
+            <div className="flex justify-between">
+              <span>Gift Wrapping</span>
+              <span>${giftWrapFee.toFixed(2)}</span>
+            </div>
+          )}
           {discountAmount > 0 && (
             <div className="flex justify-between text-green-600">
               <span>Discount</span>
@@ -95,6 +102,11 @@ function CartSummary() {
         <Link href="/checkout">
           <Button className="w-full">Proceed to Checkout</Button>
         </Link>
+
+        <div className="text-sm text-muted-foreground">
+          <p>Free shipping on orders over $100</p>
+          <p>Gift wrapping available for $5 per item</p>
+        </div>
       </CardContent>
     </Card>
   );

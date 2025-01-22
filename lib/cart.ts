@@ -2,72 +2,106 @@
 
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { Product } from "@/lib/types";
-
-interface CartItem extends Product {
-  quantity: number;
-}
+import { Product, CartItem, ProductVariant } from "@/lib/types";
 
 interface CartState {
   items: CartItem[];
   savedItems: CartItem[];
+  selectedItems: number[];
   discountCode: string | null;
   discountAmount: number;
   shipping: number;
   subtotal: number;
   total: number;
-  addItem: (product: Product) => void;
+  giftWrapFee: number;
+  addItem: (product: Product, variant?: ProductVariant) => void;
   removeItem: (productId: number) => void;
+  removeSelectedItems: () => void;
   updateQuantity: (productId: number, quantity: number) => void;
   saveForLater: (productId: number) => void;
   moveToCart: (productId: number) => void;
+  toggleGiftWrap: (productId: number) => void;
+  toggleItemSelection: (productId: number) => void;
+  selectAllItems: () => void;
+  deselectAllItems: () => void;
+  moveSelectedToWishlist: () => void;
   applyDiscount: (code: string) => void;
   removeDiscount: () => void;
   clearCart: () => void;
 }
 
+const GIFT_WRAP_FEE = 5;
 const DISCOUNT_CODES = {
   SAVE10: 0.1,
   SAVE20: 0.2,
   FREESHIP: 0,
 };
 
+function calculateEstimatedDelivery(): string {
+  const today = new Date();
+  const deliveryDate = new Date(today.setDate(today.getDate() + 3));
+  const maxDeliveryDate = new Date(today.setDate(today.getDate() + 2));
+  return `${deliveryDate.toLocaleDateString()} - ${maxDeliveryDate.toLocaleDateString()}`;
+}
+
 export const useCart = create<CartState>()(
   persist(
     (set, get) => ({
       items: [],
       savedItems: [],
+      selectedItems: [],
       discountCode: null,
       discountAmount: 0,
       shipping: 0,
       subtotal: 0,
       total: 0,
+      giftWrapFee: 0,
 
-      addItem: (product) => {
+      addItem: (product, variant) => {
         set((state) => {
           const existingItem = state.items.find(
-            (item) => item.id === product.id
+            (item) => 
+              item.id === product.id && 
+              item.selectedVariant?.id === variant?.id
           );
+
           const newItems = existingItem
             ? state.items.map((item) =>
-                item.id === product.id
+                item.id === product.id && item.selectedVariant?.id === variant?.id
                   ? { ...item, quantity: item.quantity + 1 }
                   : item
               )
-            : [...state.items, { ...product, quantity: 1 }];
+            : [
+                ...state.items,
+                {
+                  ...product,
+                  quantity: 1,
+                  selectedVariant: variant,
+                  estimatedDelivery: calculateEstimatedDelivery(),
+                },
+              ];
 
           const subtotal = newItems.reduce(
-            (sum, item) => sum + item.price * item.quantity,
+            (sum, item) => sum + (item.selectedVariant?.price || item.price) * item.quantity,
+            0
+          );
+          const giftWrapFee = newItems.reduce(
+            (sum, item) => sum + (item.giftWrap ? GIFT_WRAP_FEE * item.quantity : 0),
             0
           );
           const shipping = subtotal > 100 ? 0 : 10;
-          const total = subtotal + shipping - subtotal * state.discountAmount;
+          const total = 
+            subtotal + 
+            shipping + 
+            giftWrapFee - 
+            subtotal * state.discountAmount;
 
           return {
             items: newItems,
             subtotal,
             shipping,
             total,
+            giftWrapFee,
           };
         });
       },
@@ -75,18 +109,64 @@ export const useCart = create<CartState>()(
       removeItem: (productId) => {
         set((state) => {
           const newItems = state.items.filter((item) => item.id !== productId);
+          const newSelectedItems = state.selectedItems.filter(
+            (id) => id !== productId
+          );
+          
           const subtotal = newItems.reduce(
-            (sum, item) => sum + item.price * item.quantity,
+            (sum, item) => sum + (item.selectedVariant?.price || item.price) * item.quantity,
+            0
+          );
+          const giftWrapFee = newItems.reduce(
+            (sum, item) => sum + (item.giftWrap ? GIFT_WRAP_FEE * item.quantity : 0),
             0
           );
           const shipping = subtotal > 100 ? 0 : 10;
-          const total = subtotal + shipping - subtotal * state.discountAmount;
+          const total = 
+            subtotal + 
+            shipping + 
+            giftWrapFee - 
+            subtotal * state.discountAmount;
 
           return {
             items: newItems,
+            selectedItems: newSelectedItems,
             subtotal,
             shipping,
             total,
+            giftWrapFee,
+          };
+        });
+      },
+
+      removeSelectedItems: () => {
+        set((state) => {
+          const newItems = state.items.filter(
+            (item) => !state.selectedItems.includes(item.id)
+          );
+          
+          const subtotal = newItems.reduce(
+            (sum, item) => sum + (item.selectedVariant?.price || item.price) * item.quantity,
+            0
+          );
+          const giftWrapFee = newItems.reduce(
+            (sum, item) => sum + (item.giftWrap ? GIFT_WRAP_FEE * item.quantity : 0),
+            0
+          );
+          const shipping = subtotal > 100 ? 0 : 10;
+          const total = 
+            subtotal + 
+            shipping + 
+            giftWrapFee - 
+            subtotal * state.discountAmount;
+
+          return {
+            items: newItems,
+            selectedItems: [],
+            subtotal,
+            shipping,
+            total,
+            giftWrapFee,
           };
         });
       },
@@ -96,20 +176,84 @@ export const useCart = create<CartState>()(
           const newItems = state.items.map((item) =>
             item.id === productId ? { ...item, quantity } : item
           );
+          
           const subtotal = newItems.reduce(
-            (sum, item) => sum + item.price * item.quantity,
+            (sum, item) => sum + (item.selectedVariant?.price || item.price) * item.quantity,
+            0
+          );
+          const giftWrapFee = newItems.reduce(
+            (sum, item) => sum + (item.giftWrap ? GIFT_WRAP_FEE * item.quantity : 0),
             0
           );
           const shipping = subtotal > 100 ? 0 : 10;
-          const total = subtotal + shipping - subtotal * state.discountAmount;
+          const total = 
+            subtotal + 
+            shipping + 
+            giftWrapFee - 
+            subtotal * state.discountAmount;
 
           return {
             items: newItems,
             subtotal,
             shipping,
             total,
+            giftWrapFee,
           };
         });
+      },
+
+      toggleGiftWrap: (productId) => {
+        set((state) => {
+          const newItems = state.items.map((item) =>
+            item.id === productId
+              ? { ...item, giftWrap: !item.giftWrap }
+              : item
+          );
+          
+          const giftWrapFee = newItems.reduce(
+            (sum, item) => sum + (item.giftWrap ? GIFT_WRAP_FEE * item.quantity : 0),
+            0
+          );
+          const total = state.subtotal + state.shipping + giftWrapFee - 
+            state.subtotal * state.discountAmount;
+
+          return {
+            items: newItems,
+            giftWrapFee,
+            total,
+          };
+        });
+      },
+
+      toggleItemSelection: (productId) => {
+        set((state) => {
+          const isSelected = state.selectedItems.includes(productId);
+          const newSelectedItems = isSelected
+            ? state.selectedItems.filter((id) => id !== productId)
+            : [...state.selectedItems, productId];
+
+          return {
+            selectedItems: newSelectedItems,
+          };
+        });
+      },
+
+      selectAllItems: () => {
+        set((state) => ({
+          selectedItems: state.items.map((item) => item.id),
+        }));
+      },
+
+      deselectAllItems: () => {
+        set({ selectedItems: [] });
+      },
+
+      moveSelectedToWishlist: () => {
+        const { selectedItems } = get();
+        selectedItems.forEach((id) => {
+          // Implement wishlist logic here
+        });
+        get().removeSelectedItems();
       },
 
       saveForLater: (productId) => {
@@ -118,21 +262,33 @@ export const useCart = create<CartState>()(
           if (!item) return state;
 
           const newItems = state.items.filter((item) => item.id !== productId);
-          const newSavedItems = [...state.savedItems, item];
-
+          const newSelectedItems = state.selectedItems.filter(
+            (id) => id !== productId
+          );
+          
           const subtotal = newItems.reduce(
-            (sum, item) => sum + item.price * item.quantity,
+            (sum, item) => sum + (item.selectedVariant?.price || item.price) * item.quantity,
+            0
+          );
+          const giftWrapFee = newItems.reduce(
+            (sum, item) => sum + (item.giftWrap ? GIFT_WRAP_FEE * item.quantity : 0),
             0
           );
           const shipping = subtotal > 100 ? 0 : 10;
-          const total = subtotal + shipping - subtotal * state.discountAmount;
+          const total = 
+            subtotal + 
+            shipping + 
+            giftWrapFee - 
+            subtotal * state.discountAmount;
 
           return {
             items: newItems,
-            savedItems: newSavedItems,
+            savedItems: [...state.savedItems, item],
+            selectedItems: newSelectedItems,
             subtotal,
             shipping,
             total,
+            giftWrapFee,
           };
         });
       },
@@ -145,14 +301,22 @@ export const useCart = create<CartState>()(
           const newSavedItems = state.savedItems.filter(
             (item) => item.id !== productId
           );
-          const newItems = [...state.items, item];
-
+          const newItems = [...state.items, { ...item, estimatedDelivery: calculateEstimatedDelivery() }];
+          
           const subtotal = newItems.reduce(
-            (sum, item) => sum + item.price * item.quantity,
+            (sum, item) => sum + (item.selectedVariant?.price || item.price) * item.quantity,
+            0
+          );
+          const giftWrapFee = newItems.reduce(
+            (sum, item) => sum + (item.giftWrap ? GIFT_WRAP_FEE * item.quantity : 0),
             0
           );
           const shipping = subtotal > 100 ? 0 : 10;
-          const total = subtotal + shipping - subtotal * state.discountAmount;
+          const total = 
+            subtotal + 
+            shipping + 
+            giftWrapFee - 
+            subtotal * state.discountAmount;
 
           return {
             savedItems: newSavedItems,
@@ -160,6 +324,7 @@ export const useCart = create<CartState>()(
             subtotal,
             shipping,
             total,
+            giftWrapFee,
           };
         });
       },
@@ -171,7 +336,10 @@ export const useCart = create<CartState>()(
 
           const discountAmount = discount;
           const total =
-            state.subtotal + state.shipping - state.subtotal * discountAmount;
+            state.subtotal +
+            state.shipping +
+            state.giftWrapFee -
+            state.subtotal * discountAmount;
 
           return {
             discountCode: code,
@@ -185,7 +353,7 @@ export const useCart = create<CartState>()(
         set((state) => ({
           discountCode: null,
           discountAmount: 0,
-          total: state.subtotal + state.shipping,
+          total: state.subtotal + state.shipping + state.giftWrapFee,
         }));
       },
 
@@ -193,11 +361,13 @@ export const useCart = create<CartState>()(
         set({
           items: [],
           savedItems: [],
+          selectedItems: [],
           discountCode: null,
           discountAmount: 0,
           subtotal: 0,
           shipping: 0,
           total: 0,
+          giftWrapFee: 0,
         }),
     }),
     {
