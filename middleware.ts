@@ -1,8 +1,18 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { verifyToken, refreshToken } from '@/lib/auth/jwt';
+import { rateLimitMiddleware } from '@/lib/middleware/rate-limit';
+import { csrfMiddleware } from '@/lib/middleware/csrf';
 
 export async function middleware(request: NextRequest) {
+  // Apply rate limiting
+  const rateLimitResponse = rateLimitMiddleware(request);
+  if (rateLimitResponse) return rateLimitResponse;
+
+  // Apply CSRF protection
+  const csrfResponse = csrfMiddleware(request);
+  if (csrfResponse) return csrfResponse;
+
   // Exclude public paths from authentication
   const publicPaths = ['/login', '/register', '/', '/products', '/categories'];
   const isPublicPath = publicPaths.some(path => 
@@ -30,8 +40,15 @@ export async function middleware(request: NextRequest) {
         }
       }
       
-      // Valid token, proceed
-      return NextResponse.next();
+      const response = NextResponse.next();
+      
+      // Set security headers
+      response.headers.set('X-Frame-Options', 'DENY');
+      response.headers.set('X-Content-Type-Options', 'nosniff');
+      response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+      response.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+      
+      return response;
     }
 
     // Try to refresh token
@@ -52,26 +69,20 @@ export async function middleware(request: NextRequest) {
         
         return response;
       } catch (error) {
-        // Refresh token invalid/expired
         return redirectToLogin(request);
       }
     }
 
-    // No tokens available
     return redirectToLogin(request);
   } catch (error) {
-    // Token verification failed
     return redirectToLogin(request);
   }
 }
 
 function redirectToLogin(request: NextRequest) {
   const response = NextResponse.redirect(new URL('/login', request.url));
-  
-  // Clear invalid tokens
   response.cookies.delete('access-token');
   response.cookies.delete('refresh-token');
-  
   return response;
 }
 

@@ -1,3 +1,6 @@
+'use client';
+
+import { useInfiniteScroll } from '@/lib/hooks/use-infinite-scroll';
 import { getProducts } from '@/lib/api';
 import { Product } from '@/lib/types';
 import Link from 'next/link';
@@ -5,74 +8,53 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Search } from 'lucide-react';
 import ProductGrid from '@/components/product-grid';
+import { LoadingSpinner } from '@/components/loading-spinner';
+import { ErrorBoundary } from '@/components/error-boundary';
+import { memo } from 'react';
 
-export const dynamic = 'force-dynamic'; // Enable SSR
+const ITEMS_PER_PAGE = 12;
 
-interface SearchParams {
-  page?: string;
-  search?: string;
-  category?: string;
-}
+const MemoizedProductGrid = memo(ProductGrid);
 
-export default async function ProductsPage({
-  searchParams,
-}: {
-  searchParams: SearchParams;
-}) {
-  const page = Number(searchParams.page) || 1;
-  const search = searchParams.search || '';
-  const category = searchParams.category || '';
-  
-  const products = await getProducts((page - 1) * 12, 12);
+export default function ProductsPage() {
+  const loadMore = async () => {
+    const products = await getProducts(items.length, ITEMS_PER_PAGE);
+    return products;
+  };
+
+  const { items, loading, hasMore, targetRef } = useInfiniteScroll<Product>(loadMore);
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="flex items-center gap-2 mb-8">
-        <Link href="/" className="text-muted-foreground hover:text-foreground">
-          Home
-        </Link>
-        <span className="text-muted-foreground">/</span>
-        <span>Products</span>
-      </div>
+    <ErrorBoundary>
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex items-center gap-2 mb-8">
+          <Link href="/" className="text-muted-foreground hover:text-foreground">
+            Home
+          </Link>
+          <span className="text-muted-foreground">/</span>
+          <span>Products</span>
+        </div>
 
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">All Products</h1>
-        <div className="flex gap-4">
-          <div className="relative w-64">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-            <Input
-              placeholder="Search products..."
-              className="pl-10"
-              defaultValue={search}
-            />
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-3xl font-bold">All Products</h1>
+          <div className="flex gap-4">
+            <div className="relative w-64">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+              <Input
+                placeholder="Search products..."
+                className="pl-10"
+              />
+            </div>
+            <Button variant="outline">Filters</Button>
           </div>
-          <Button variant="outline">Filters</Button>
         </div>
-      </div>
 
-      <ProductGrid products={products} />
+        <MemoizedProductGrid products={items} />
 
-      <div className="mt-8 flex justify-center">
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
-            disabled={page === 1}
-            onClick={() => {
-              // Handle pagination
-            }}
-          >
-            Previous
-          </Button>
-          <Button
-            variant="outline"
-            onClick={() => {
-              // Handle pagination
-            }}
-          >
-            Next
-          </Button>
-        </div>
+        {loading && <LoadingSpinner />}
+        
+        {hasMore && <div ref={targetRef} className="h-10" />}
       </div>
-    </div>
+    </ErrorBoundary>
   );
 }
