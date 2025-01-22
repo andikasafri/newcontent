@@ -1,12 +1,15 @@
-"use client";
+'use client';
 
 import { Product } from "@/lib/types";
 import { useCart } from "@/lib/cart";
-import { ShoppingCart } from "lucide-react";
+import { ShoppingCart, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import Image from "next/image";
 import { useToast } from "@/hooks/use-toast";
+import { useState } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useWishlist } from "@/lib/hooks/use-wishlist";
 
 interface ProductDetailsProps {
   product: Product;
@@ -15,10 +18,14 @@ interface ProductDetailsProps {
 export default function ProductDetails({ product }: ProductDetailsProps) {
   const { addItem } = useCart();
   const { toast } = useToast();
+  const { addItem: addToWishlist, hasItem: isInWishlist } = useWishlist();
+  const [selectedImage, setSelectedImage] = useState(0);
+  const [loading, setLoading] = useState(false);
 
-  const handleAddToCart = () => {
+  const handleAddToCart = async () => {
+    setLoading(true);
     try {
-      addItem(product);
+      await addItem(product);
       toast({
         description: "Added to cart successfully",
       });
@@ -27,8 +34,28 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
         variant: "destructive",
         description: "Failed to add to cart",
       });
+    } finally {
+      setLoading(false);
     }
   };
+
+  const handleAddToWishlist = () => {
+    try {
+      addToWishlist(product.id);
+      toast({
+        description: "Added to wishlist successfully",
+      });
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        description: "Failed to add to wishlist",
+      });
+    }
+  };
+
+  if (!product) {
+    return <ProductDetailsSkeleton />;
+  }
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -51,7 +78,7 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
         <div className="space-y-4">
           <div className="aspect-square relative overflow-hidden rounded-lg">
             <Image
-              src={product.images[0]}
+              src={product.images[selectedImage]}
               alt={product.title}
               fill
               sizes="(max-width: 768px) 100vw, 50vw"
@@ -60,19 +87,22 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
             />
           </div>
           <div className="grid grid-cols-4 gap-4">
-            {product.images.slice(1).map((image, index) => (
-              <div
+            {product.images.map((image, index) => (
+              <button
                 key={index}
-                className="aspect-square relative overflow-hidden rounded-lg"
+                onClick={() => setSelectedImage(index)}
+                className={`aspect-square relative overflow-hidden rounded-lg ${
+                  selectedImage === index ? 'ring-2 ring-primary' : ''
+                }`}
               >
                 <Image
                   src={image}
-                  alt={`${product.title} - ${index + 2}`}
+                  alt={`${product.title} - ${index + 1}`}
                   fill
                   sizes="(max-width: 768px) 25vw, 12.5vw"
                   className="object-cover"
                 />
-              </div>
+              </button>
             ))}
           </div>
         </div>
@@ -96,10 +126,60 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
               {product.category.name}
             </Link>
           </div>
-          <Button size="lg" className="w-full" onClick={handleAddToCart}>
-            <ShoppingCart className="mr-2 h-5 w-5" />
-            Add to Cart
-          </Button>
+          <div className="flex gap-4">
+            <Button
+              size="lg"
+              className="flex-1"
+              onClick={handleAddToCart}
+              disabled={loading}
+            >
+              <ShoppingCart className="mr-2 h-5 w-5" />
+              Add to Cart
+            </Button>
+            <Button
+              size="lg"
+              variant="outline"
+              onClick={handleAddToWishlist}
+              disabled={isInWishlist(product.id)}
+            >
+              <Heart className="h-5 w-5" />
+            </Button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ProductDetailsSkeleton() {
+  return (
+    <div className="container mx-auto px-4 py-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="space-y-4">
+          <Skeleton className="aspect-square w-full rounded-lg" />
+          <div className="grid grid-cols-4 gap-4">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <Skeleton key={i} className="aspect-square rounded-lg" />
+            ))}
+          </div>
+        </div>
+        <div className="space-y-6">
+          <div>
+            <Skeleton className="h-8 w-3/4" />
+            <Skeleton className="h-8 w-1/4 mt-2" />
+          </div>
+          <div>
+            <Skeleton className="h-6 w-1/3 mb-2" />
+            <Skeleton className="h-24 w-full" />
+          </div>
+          <div>
+            <Skeleton className="h-6 w-1/4 mb-2" />
+            <Skeleton className="h-6 w-1/3" />
+          </div>
+          <div className="flex gap-4">
+            <Skeleton className="h-12 flex-1" />
+            <Skeleton className="h-12 w-12" />
+          </div>
         </div>
       </div>
     </div>
