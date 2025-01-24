@@ -1,13 +1,18 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { getCustomerSegments } from '@/lib/admin/api';
-import { CustomerSegment } from '@/lib/admin/types';
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
-import { useToast } from '@/hooks/use-toast';
+import { useEffect, useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { getCustomerSegments } from "@/lib/admin/api";
+import { CustomerSegment } from "@/lib/admin/types";
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
+import { useToast } from "@/hooks/use-toast";
 
-const COLORS = ['hsl(var(--chart-1))', 'hsl(var(--chart-2))', 'hsl(var(--chart-3))', 'hsl(var(--chart-4))'];
+const COLORS = [
+  "hsl(var(--chart-1))",
+  "hsl(var(--chart-2))",
+  "hsl(var(--chart-3))",
+  "hsl(var(--chart-4))",
+];
 
 export function CustomerSegments() {
   const [segments, setSegments] = useState<CustomerSegment[]>([]);
@@ -20,9 +25,10 @@ export function CustomerSegments() {
         const data = await getCustomerSegments();
         setSegments(data);
       } catch (error) {
+        console.error(error);
         toast({
-          variant: 'destructive',
-          description: 'Failed to load customer segments',
+          variant: "destructive",
+          description: "Failed to load customer segments",
         });
       } finally {
         setLoading(false);
@@ -58,12 +64,15 @@ export function CustomerSegments() {
                 outerRadius={100}
                 fill="#8884d8"
                 dataKey="value"
-                label={({ name, percent }) => 
+                label={({ name, percent }) =>
                   `${name} ${(percent * 100).toFixed(0)}%`
                 }
               >
                 {chartData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  <Cell
+                    key={`cell-${index}`}
+                    fill={COLORS[index % COLORS.length]}
+                  />
                 ))}
               </Pie>
               <Tooltip />

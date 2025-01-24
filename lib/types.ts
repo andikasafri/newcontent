@@ -222,3 +222,8 @@ export interface CheckoutFormData {
   cardExpiry: string;
   cardCvc: string;
 }
+
+export interface ApiErrorData {
+  message?: string;
+  details?: string;
+}

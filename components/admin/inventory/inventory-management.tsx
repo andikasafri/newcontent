@@ -1,13 +1,20 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { getInventoryStats } from '@/lib/admin/api';
-import { InventoryStats } from '@/lib/admin/types';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
-import { useToast } from '@/hooks/use-toast';
-import { AlertTriangle, CheckCircle, XCircle } from 'lucide-react';
+import { useEffect, useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { getInventoryStats } from "@/lib/admin/api";
+import { InventoryStats } from "@/lib/admin/types";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import { useToast } from "@/hooks/use-toast";
+import { AlertTriangle, CheckCircle, XCircle } from "lucide-react";
 
 export function InventoryManagement() {
   const [stats, setStats] = useState<InventoryStats | null>(null);
@@ -20,9 +27,11 @@ export function InventoryManagement() {
         const data = await getInventoryStats();
         setStats(data);
       } catch (error) {
+        console.error("Failed to fetch inventory stats:", error);
+
         toast({
-          variant: 'destructive',
-          description: 'Failed to load inventory stats',
+          variant: "destructive",
+          description: "Failed to load inventory stats",
         });
       } finally {
         setLoading(false);
@@ -47,7 +56,9 @@ export function InventoryManagement() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
           <Card>
             <CardContent className="pt-6">
-              <div className="text-2xl font-bold">{stats.summary.totalProducts}</div>
+              <div className="text-2xl font-bold">
+                {stats.summary.totalProducts}
+              </div>
               <p className="text-muted-foreground">Total Products</p>
             </CardContent>
           </Card>
@@ -94,17 +105,26 @@ export function InventoryManagement() {
                 <TableCell>{product.stock}</TableCell>
                 <TableCell>
                   {product.stock === 0 ? (
-                    <Badge variant="destructive" className="flex items-center gap-1">
+                    <Badge
+                      variant="destructive"
+                      className="flex items-center gap-1"
+                    >
                       <XCircle className="h-4 w-4" />
                       Out of Stock
                     </Badge>
                   ) : product.stock <= product.reorderPoint ? (
-                    <Badge variant="warning" className="flex items-center gap-1">
+                    <Badge
+                      variant="warning"
+                      className="flex items-center gap-1"
+                    >
                       <AlertTriangle className="h-4 w-4" />
                       Low Stock
                     </Badge>
                   ) : (
-                    <Badge variant="success" className="flex items-center gap-1">
+                    <Badge
+                      variant="success"
+                      className="flex items-center gap-1"
+                    >
                       <CheckCircle className="h-4 w-4" />
                       In Stock
                     </Badge>

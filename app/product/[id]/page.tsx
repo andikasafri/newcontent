@@ -1,6 +1,5 @@
 // import { getProduct, getProducts } from "@/lib/api";
 import { getProduct, getProducts } from "lib/productApi";
-import { getCategories } from "lib/categoryApi";
 
 import { Product } from "@/lib/types";
 import ProductDetails from "./product-details";
@@ -12,7 +11,7 @@ interface ProductPageProps {
 }
 
 export async function generateStaticParams() {
-  const products: Product[] = await getProducts(0, 100); // Fetch first 100 products
+  const products: Product[] = await getProducts(0, 100);
   return products.map((product) => ({
     id: product.id.toString(),
   }));

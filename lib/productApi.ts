@@ -1,9 +1,13 @@
-import { Product } from "@/lib/types";
+import { ApiErrorData, Product } from "@/lib/types";
 
 const API_URL = "https://api.escuelajs.co/api/v1";
 
 class ApiError extends Error {
-  constructor(public status: number, message: string, public data?: any) {
+  constructor(
+    public status: number,
+    message: string,
+    public data?: ApiErrorData
+  ) {
     super(message);
     this.name = "ApiError";
   }

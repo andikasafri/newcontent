@@ -1,40 +1,42 @@
-'use client';
+"use client";
 
-import { withAuth } from '@/lib/hoc/withAuth';
-import { useAuth } from '@/lib/auth';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { useWishlist } from '@/lib/hooks/use-wishlist';
-import { Switch } from '@/components/ui/switch';
-import Link from 'next/link';
-import Image from 'next/image';
-import { useState } from 'react';
-import { useToast } from '@/hooks/use-toast';
-import { ShoppingCart, Heart, Package, Clock, AlertCircle } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
+import { withAuth } from "@/lib/hoc/withAuth";
+import { useAuth } from "@/lib/auth";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useWishlist } from "@/lib/hooks/use-wishlist";
+import { Switch } from "@/components/ui/switch";
+import Link from "next/link";
+import Image from "next/image";
+import { useState } from "react";
+import { useToast } from "@/hooks/use-toast";
+import { ShoppingCart, Heart, Package, AlertCircle } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 // Mock order data - replace with actual API call
 const mockOrders = [
   {
-    id: '1',
-    date: '2024-03-20',
-    status: 'delivered',
+    id: "1",
+    date: "2024-03-20",
+    status: "delivered",
     total: 129.99,
     items: [
       {
         id: 1,
-        title: 'Premium Headphones',
+        title: "Premium Headphones",
         price: 79.99,
-        image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&q=80',
+        image:
+          "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&q=80",
       },
       {
         id: 2,
-        title: 'Wireless Mouse',
+        title: "Wireless Mouse",
         price: 49.99,
-        image: 'https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?w=800&q=80',
+        image:
+          "https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?w=800&q=80",
       },
     ],
   },
@@ -43,9 +45,10 @@ const mockOrders = [
 
 function AccountPage() {
   const { user } = useAuth();
-  const { items: wishlistItems, removeItem: removeFromWishlist } = useWishlist();
-  const [name, setName] = useState(user?.name || '');
-  const [email, setEmail] = useState(user?.email || '');
+  const { items: wishlistItems, removeItem: removeFromWishlist } =
+    useWishlist();
+  const [name, setName] = useState(user?.name || "");
+  const [email, setEmail] = useState(user?.email || "");
   const { toast } = useToast();
   const [notifications, setNotifications] = useState({
     emailNotifications: true,
@@ -62,6 +65,7 @@ function AccountPage() {
         description: "Profile updated successfully",
       });
     } catch (error) {
+      console.error(error);
       toast({
         variant: "destructive",
         description: "Failed to update profile",
@@ -75,7 +79,7 @@ function AccountPage() {
   };
 
   const handleNotificationUpdate = (key: string, value: boolean) => {
-    setNotifications(prev => ({ ...prev, [key]: value }));
+    setNotifications((prev) => ({ ...prev, [key]: value }));
     toast({
       description: "Notification preferences updated",
     });
@@ -132,7 +136,9 @@ function AccountPage() {
                     <Input id="newPassword" type="password" />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="confirmPassword">Confirm New Password</Label>
+                    <Label htmlFor="confirmPassword">
+                      Confirm New Password
+                    </Label>
                     <Input id="confirmPassword" type="password" />
                   </div>
                   <Button type="submit">Change Password</Button>
@@ -160,12 +166,19 @@ function AccountPage() {
                       </div>
                       <div className="text-right">
                         <Badge
-                          variant={order.status === 'delivered' ? 'default' : 'secondary'}
+                          variant={
+                            order.status === "delivered"
+                              ? "default"
+                              : "secondary"
+                          }
                           className="mb-2"
                         >
-                          {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                          {order.status.charAt(0).toUpperCase() +
+                            order.status.slice(1)}
                         </Badge>
-                        <p className="font-semibold">${order.total.toFixed(2)}</p>
+                        <p className="font-semibold">
+                          ${order.total.toFixed(2)}
+                        </p>
                       </div>
                     </div>
                     <div className="grid gap-4">
@@ -253,7 +266,9 @@ function AccountPage() {
               ) : (
                 <div className="text-center py-8">
                   <Heart className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
-                  <p className="text-muted-foreground">Your wishlist is empty</p>
+                  <p className="text-muted-foreground">
+                    Your wishlist is empty
+                  </p>
                   <Link href="/products">
                     <Button className="mt-4">Browse Products</Button>
                   </Link>
@@ -279,7 +294,7 @@ function AccountPage() {
                 <Switch
                   checked={notifications.emailNotifications}
                   onCheckedChange={(checked) =>
-                    handleNotificationUpdate('emailNotifications', checked)
+                    handleNotificationUpdate("emailNotifications", checked)
                   }
                 />
               </div>
@@ -293,7 +308,7 @@ function AccountPage() {
                 <Switch
                   checked={notifications.orderUpdates}
                   onCheckedChange={(checked) =>
-                    handleNotificationUpdate('orderUpdates', checked)
+                    handleNotificationUpdate("orderUpdates", checked)
                   }
                 />
               </div>
@@ -307,7 +322,7 @@ function AccountPage() {
                 <Switch
                   checked={notifications.promotionalEmails}
                   onCheckedChange={(checked) =>
-                    handleNotificationUpdate('promotionalEmails', checked)
+                    handleNotificationUpdate("promotionalEmails", checked)
                   }
                 />
               </div>
@@ -321,7 +336,7 @@ function AccountPage() {
                 <Switch
                   checked={notifications.newsletter}
                   onCheckedChange={(checked) =>
-                    handleNotificationUpdate('newsletter', checked)
+                    handleNotificationUpdate("newsletter", checked)
                   }
                 />
               </div>

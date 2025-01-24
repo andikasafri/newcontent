@@ -1,19 +1,19 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { Product, Category } from '@/lib/types';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
+import { useState } from "react";
+import { Product, Category } from "@/lib/types";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { useToast } from '@/hooks/use-toast';
+} from "@/components/ui/select";
+import { useToast } from "@/hooks/use-toast";
 
 interface ProductFormProps {
   product?: Product;
@@ -21,17 +21,21 @@ interface ProductFormProps {
   onSubmit: (data: Partial<Product>) => Promise<void>;
 }
 
-export function ProductForm({ product, categories, onSubmit }: ProductFormProps) {
+export function ProductForm({
+  product,
+  categories,
+  onSubmit,
+}: ProductFormProps) {
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
   const [formData, setFormData] = useState<Partial<Product>>(
     product || {
-      title: '',
-      description: '',
+      title: "",
+      description: "",
       price: 0,
       stock: 0,
       category: categories[0],
-      images: [''],
+      images: [""],
     }
   );
 
@@ -41,12 +45,13 @@ export function ProductForm({ product, categories, onSubmit }: ProductFormProps)
     try {
       await onSubmit(formData);
       toast({
-        description: `Product ${product ? 'updated' : 'created'} successfully`,
+        description: `Product ${product ? "updated" : "created"} successfully`,
       });
     } catch (error) {
+      console.error(error);
       toast({
-        variant: 'destructive',
-        description: `Failed to ${product ? 'update' : 'create'} product`,
+        variant: "destructive",
+        description: `Failed to ${product ? "update" : "create"} product`,
       });
     } finally {
       setLoading(false);
@@ -70,7 +75,9 @@ export function ProductForm({ product, categories, onSubmit }: ProductFormProps)
         <Textarea
           id="description"
           value={formData.description}
-          onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+          onChange={(e) =>
+            setFormData({ ...formData, description: e.target.value })
+          }
           required
         />
       </div>
@@ -84,7 +91,9 @@ export function ProductForm({ product, categories, onSubmit }: ProductFormProps)
             min="0"
             step="0.01"
             value={formData.price}
-            onChange={(e) => setFormData({ ...formData, price: parseFloat(e.target.value) })}
+            onChange={(e) =>
+              setFormData({ ...formData, price: parseFloat(e.target.value) })
+            }
             required
           />
         </div>
@@ -96,7 +105,9 @@ export function ProductForm({ product, categories, onSubmit }: ProductFormProps)
             type="number"
             min="0"
             value={formData.stock}
-            onChange={(e) => setFormData({ ...formData, stock: parseInt(e.target.value) })}
+            onChange={(e) =>
+              setFormData({ ...formData, stock: parseInt(e.target.value) })
+            }
             required
           />
         </div>
@@ -143,7 +154,9 @@ export function ProductForm({ product, categories, onSubmit }: ProductFormProps)
                 type="button"
                 variant="outline"
                 onClick={() => {
-                  const newImages = formData.images?.filter((_, i) => i !== index);
+                  const newImages = formData.images?.filter(
+                    (_, i) => i !== index
+                  );
                   setFormData({ ...formData, images: newImages });
                 }}
               >
@@ -157,7 +170,7 @@ export function ProductForm({ product, categories, onSubmit }: ProductFormProps)
             onClick={() => {
               setFormData({
                 ...formData,
-                images: [...(formData.images || []), ''],
+                images: [...(formData.images || []), ""],
               });
             }}
           >
@@ -167,7 +180,7 @@ export function ProductForm({ product, categories, onSubmit }: ProductFormProps)
       </div>
 
       <Button type="submit" disabled={loading}>
-        {product ? 'Update Product' : 'Create Product'}
+        {product ? "Update Product" : "Create Product"}
       </Button>
     </form>
   );

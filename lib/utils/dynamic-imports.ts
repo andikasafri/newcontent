@@ -1,65 +1,21 @@
-import dynamic from "next/dynamic";
-import { DynamicOptionsLoadingProps } from "next/dynamic";
-import { LoadingSpinner } from "@/components/loading-spinner";
-
-// Create a loading component that returns JSX.Element
-const LoadingComponent = (props: DynamicOptionsLoadingProps): JSX.Element => {
-  return <LoadingSpinner {...props} />;
-};
+import { CustomerSegments } from "@components/admin/analytics/customer-segments";
+import { SalesForecastChart } from "@components/admin/analytics/sales-forecast";
+import { InventoryManagement } from "@components/admin/inventory/inventory-management";
+import CartItems from "@components/cart/cart-items";
+import CartSummary from "@components/cart/cart-summary";
+import ProductGrid from "@components/product-grid";
 
 // Admin components - large and route-specific
-export const DynamicCustomerSegments = dynamic(
-  () =>
-    import("@/components/admin/analytics/customer-segments").then((mod) => ({
-      default: mod.CustomerSegments,
-    })),
-  {
-    loading: LoadingComponent,
-    ssr: false,
-  }
-);
+export const DynamicCustomerSegments = CustomerSegments;
 
-export const DynamicSalesForecast = dynamic(
-  () =>
-    import("@/components/admin/analytics/sales-forecast").then((mod) => ({
-      default: mod.SalesForecastChart,
-    })),
-  {
-    loading: LoadingComponent,
-    ssr: false,
-  }
-);
+export const DynamicSalesForecast = SalesForecastChart;
 
-export const DynamicInventoryManagement = dynamic(
-  () =>
-    import("@/components/admin/inventory/inventory-management").then((mod) => ({
-      default: mod.InventoryManagement,
-    })),
-  {
-    loading: LoadingComponent,
-    ssr: false,
-  }
-);
+export const DynamicInventoryManagement = InventoryManagement;
 
 // Cart components - loaded on interaction
-export const DynamicCartItems = dynamic(
-  () => import("@/components/cart/cart-items"),
-  {
-    suspense: true,
-  }
-);
+export const DynamicCartItems = CartItems;
 
-export const DynamicCartSummary = dynamic(
-  () => import("@/components/cart/cart-summary"),
-  {
-    suspense: true,
-  }
-);
+export const DynamicCartSummary = CartSummary;
 
 // Product components - loaded when in viewport
-export const DynamicProductGrid = dynamic(
-  () => import("@/components/product-grid"),
-  {
-    suspense: true,
-  }
-);
+export const DynamicProductGrid = ProductGrid;

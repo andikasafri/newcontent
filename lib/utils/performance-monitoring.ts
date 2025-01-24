@@ -24,7 +24,16 @@ export function measurePageLoad() {
   };
 }
 
-export function reportPerformanceMetrics(metrics: any) {
+export interface PerformanceMetrics {
+  ttfb: number;
+  fcp: number;
+  lcp: number;
+  totalLoadTime: number;
+  // loadTime: number; // Load time in milliseconds
+  // firstContentfulPaint: number; // Time to first contentful paint in milliseconds
+}
+
+export function reportPerformanceMetrics(metrics: PerformanceMetrics) {
   // Send metrics to your analytics service
   console.log("Performance Metrics:", metrics);
 }

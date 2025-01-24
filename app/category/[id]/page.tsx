@@ -1,15 +1,8 @@
 import { getProducts, getCategories } from "@/lib/api";
 import { Product, Category } from "@/lib/types";
 import Link from "next/link";
-import { ShoppingCart, SlidersHorizontal } from "lucide-react";
+import { SlidersHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import ProductGrid from "@/components/product-grid";
 import {
   Sheet,

@@ -17,6 +17,7 @@ export async function verifyToken(token: string) {
     const { payload } = await jwtVerify(token, JWT_SECRET);
     return payload;
   } catch (error) {
+    console.error("Failed to verify token:", error);
     throw new Error("Invalid token");
   }
 }
@@ -39,6 +40,7 @@ export async function refreshToken(token: string) {
       role: payload.role as string,
     });
   } catch (error) {
+    console.error("Failed to refresh token:", error);
     throw new Error("Invalid refresh token");
   }
 }

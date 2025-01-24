@@ -1,11 +1,19 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { getSalesForecasts } from '@/lib/admin/api';
-import { SalesForecast } from '@/lib/admin/types';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { useToast } from '@/hooks/use-toast';
+import { useEffect, useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { getSalesForecasts } from "@/lib/admin/api";
+import { SalesForecast } from "@/lib/admin/types";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
+import { useToast } from "@/hooks/use-toast";
 
 export function SalesForecastChart() {
   const [forecasts, setForecasts] = useState<SalesForecast[]>([]);
@@ -18,9 +26,10 @@ export function SalesForecastChart() {
         const data = await getSalesForecasts();
         setForecasts(data);
       } catch (error) {
+        console.error("Failed to fetch sales forecasts:", error);
         toast({
-          variant: 'destructive',
-          description: 'Failed to load sales forecasts',
+          variant: "destructive",
+          description: "Failed to load sales forecasts",
         });
       } finally {
         setLoading(false);
@@ -74,7 +83,8 @@ export function SalesForecastChart() {
                 <ul className="text-sm">
                   {forecast.factors.map((factor) => (
                     <li key={factor.name}>
-                      {factor.name}: {factor.impact > 0 ? '+' : ''}{factor.impact}%
+                      {factor.name}: {factor.impact > 0 ? "+" : ""}
+                      {factor.impact}%
                     </li>
                   ))}
                 </ul>

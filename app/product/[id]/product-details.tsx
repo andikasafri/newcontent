@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { Product } from "@/lib/types";
 import { useCart } from "@/lib/cart";
@@ -30,6 +30,7 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
         description: "Added to cart successfully",
       });
     } catch (error) {
+      console.error("Failed to add to cart:", error);
       toast({
         variant: "destructive",
         description: "Failed to add to cart",
@@ -46,6 +47,7 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
         description: "Added to wishlist successfully",
       });
     } catch (error) {
+      console.error("Failed to add to wishlist:", error);
       toast({
         variant: "destructive",
         description: "Failed to add to wishlist",
@@ -92,7 +94,7 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
                 key={index}
                 onClick={() => setSelectedImage(index)}
                 className={`aspect-square relative overflow-hidden rounded-lg ${
-                  selectedImage === index ? 'ring-2 ring-primary' : ''
+                  selectedImage === index ? "ring-2 ring-primary" : ""
                 }`}
               >
                 <Image

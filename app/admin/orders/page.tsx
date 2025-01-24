@@ -47,6 +47,7 @@ function OrdersPage() {
       const data = await getOrders();
       setOrders(data);
     } catch (error) {
+      console.log(error);
       toast({
         variant: "destructive",
         description: "Failed to fetch orders",
@@ -75,6 +76,7 @@ function OrdersPage() {
         description: "Order status updated successfully",
       });
     } catch (error) {
+      console.log(error);
       toast({
         variant: "destructive",
         description: "Failed to update order status",

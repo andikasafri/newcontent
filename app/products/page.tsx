@@ -2,7 +2,7 @@
 
 import { useInfiniteScroll } from "@/lib/hooks/use-infinite-scroll";
 // import { getProducts } from '@/lib/api';
-import { getProduct, getProducts } from "@/lib/productApi";
+import { getProducts } from "@/lib/productApi";
 import { Product } from "@/lib/types";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";

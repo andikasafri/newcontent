@@ -23,7 +23,7 @@ export default function ProductTable({ products }: ProductTableProps) {
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (_id: number) => {
     if (!confirm("Are you sure you want to delete this product?")) return;
 
     setLoading(true);
@@ -33,6 +33,7 @@ export default function ProductTable({ products }: ProductTableProps) {
         description: "Product deleted successfully",
       });
     } catch (error) {
+      console.error(error);
       toast({
         variant: "destructive",
         description: "Failed to delete product",

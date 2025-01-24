@@ -2,13 +2,13 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState, useEffect } from "react";
-import { getProducts } from "@/lib/api";
-import { Product } from "@/lib/types";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { getProducts } from "lib/api";
+import { Product } from "lib/types";
+import { Button } from "components/ui/button";
+import { Input } from "components/ui/input";
 import { Plus, Search } from "lucide-react";
-import ProductTable from "@/components/admin/product-table";
-import { ProductTableSkeleton } from "@/components/admin/product-table-skeleton";
+import ProductTable from "components/admin/product-table";
+import { ProductTableSkeleton } from "components/admin/product-table-skeleton";
 
 export default function ProductsPage() {
   const router = useRouter();
@@ -36,7 +36,6 @@ export default function ProductsPage() {
   }, [page]);
 
   const handleSearch = (searchTerm: string) => {
-    // Create a new URLSearchParams instance with the current search params
     const params = new URLSearchParams(Array.from(searchParams.entries()));
 
     if (searchTerm) {
@@ -47,6 +46,11 @@ export default function ProductsPage() {
     params.set("page", "1");
     router.push(`/admin/products?${params.toString()}`);
   };
+
+  // Use the category to filter products
+  const filteredProducts = category
+    ? products.filter((product) => product.category.name === category)
+    : products;
 
   return (
     <div className="space-y-6">
@@ -74,7 +78,7 @@ export default function ProductsPage() {
       {loading ? (
         <ProductTableSkeleton />
       ) : (
-        <ProductTable products={products} />
+        <ProductTable products={filteredProducts} />
       )}
     </div>
   );

@@ -10,13 +10,17 @@ import {
 const API_URL = "https://api.escuelajs.co/api/v1";
 
 export class ApiError extends Error {
-  constructor(public status: number, message: string, public data?: any) {
+  constructor(
+    public status: number,
+    message: string,
+    public data?: Record<string, unknown>
+  ) {
     super(message);
     this.name = "ApiError";
   }
 }
 
-async function handleResponse<T>(response: Response): Promise<T> {
+export async function handleResponse<T>(response: Response): Promise<T> {
   if (!response.ok) {
     const error = await response.json().catch(() => ({}));
     throw new ApiError(response.status, error.message || "API Error", error);
@@ -79,7 +83,7 @@ export async function getStats() {
       headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       next: { revalidate: 300 },
     });
-    return handleResponse<any>(res);
+    return handleResponse<Record<string, unknown>>(res);
   } catch (error) {
     throw handleApiError(error);
   }
@@ -187,6 +191,22 @@ export async function updateUserPreferences(
       body: JSON.stringify(preferences),
     });
     return handleResponse<UserPreferences>(res);
+  } catch (error) {
+    throw handleApiError(error);
+  }
+}
+
+export async function updateProduct(id: number, data: Partial<Product>) {
+  try {
+    const res = await fetch(`${API_URL}/products/${id}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+      body: JSON.stringify(data),
+    });
+    return handleResponse<Product>(res);
   } catch (error) {
     throw handleApiError(error);
   }

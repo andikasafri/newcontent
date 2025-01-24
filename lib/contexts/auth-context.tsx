@@ -1,9 +1,9 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState } from "react";
-import { User, AuthResponse } from "../types"; // Adjust the import path as necessary
-import * as api from "../api"; // Adjust the import path as necessary
-import { useToast } from "@/hooks/use-toast"; // Adjust the import path as necessary
+import { User, AuthResponse } from "../types";
+import * as api from "../api";
+import { useToast } from "@/hooks/use-toast";
 
 interface AuthContextType {
   user: User | null; // Current authenticated user
@@ -44,6 +44,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setToken(authToken);
         setIsAdmin(userData.role === "admin");
       } catch (error) {
+        console.error("Error loading user profile:", error);
         localStorage.removeItem("auth-token");
         setError("Session expired. Please login again.");
         toast({

@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { memo } from "react";
 import { Button } from "@/components/ui/button";
@@ -25,7 +25,7 @@ function CartSummary() {
   const handleApplyDiscount = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const form = e.currentTarget;
-    const code = new FormData(form).get('discountCode') as string;
+    const code = new FormData(form).get("discountCode") as string;
 
     if (!code?.trim()) {
       toast({
@@ -41,6 +41,7 @@ function CartSummary() {
         description: "Discount applied successfully",
       });
     } catch (error) {
+      console.error(error);
       toast({
         variant: "destructive",
         description: "Invalid discount code",

@@ -30,6 +30,7 @@ export default function ProductGrid({ products }: ProductGridProps) {
         description: "Added to cart successfully",
       });
     } catch (error) {
+      console.error(`Error adding to cart:`, error);
       toast({
         variant: "destructive",
         description: "Failed to add to cart",

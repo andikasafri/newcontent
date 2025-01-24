@@ -19,10 +19,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { User, ShieldCheck } from "lucide-react";
 
-interface ToastMessage {
-  description: string;
-  title?: string;
-}
+// future use
+// interface ToastMessage {
+//   description: string;
+//   title?: string;
+// }
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -50,6 +51,7 @@ export default function LoginPage() {
       }
       router.push("/");
     } catch (err) {
+      console.error("Login failed:", err);
       setError("Invalid credentials");
     }
   };

@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { memo } from "react";
 import Image from "next/image";
@@ -7,11 +7,9 @@ import { Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useCart } from "@/lib/cart";
-import { useToast } from "@/hooks/use-toast";
 
 function SavedItems() {
   const { savedItems, moveToCart, removeItem } = useCart();
-  const { toast } = useToast();
 
   if (savedItems.length === 0) return null;
 
@@ -43,14 +41,9 @@ function SavedItems() {
               >
                 {item.title}
               </Link>
-              <p className="text-primary font-bold mt-1">
-                ${item.price}
-              </p>
+              <p className="text-primary font-bold mt-1">${item.price}</p>
               <div className="flex items-center gap-2 mt-2">
-                <Button
-                  variant="outline"
-                  onClick={() => moveToCart(item.id)}
-                >
+                <Button variant="outline" onClick={() => moveToCart(item.id)}>
                   Move to Cart
                 </Button>
                 <Button

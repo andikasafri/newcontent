@@ -7,6 +7,8 @@ import { Product, CartItem, ProductVariant } from "@/lib/types";
 interface CartState {
   items: CartItem[];
   savedItems: CartItem[];
+  products: Product[];
+  wishlist: Product[];
   selectedItems: number[];
   discountCode: string | null;
   discountAmount: number;
@@ -49,6 +51,8 @@ export const useCart = create<CartState>()(
     (set, get) => ({
       items: [],
       savedItems: [],
+      products: [],
+      wishlist: [],
       selectedItems: [],
       discountCode: null,
       discountAmount: 0,
@@ -60,14 +64,14 @@ export const useCart = create<CartState>()(
       addItem: (product, variant) => {
         set((state) => {
           const existingItem = state.items.find(
-            (item) => 
-              item.id === product.id && 
-              item.selectedVariant?.id === variant?.id
+            (item) =>
+              item.id === product.id && item.selectedVariant?.id === variant?.id
           );
 
           const newItems = existingItem
             ? state.items.map((item) =>
-                item.id === product.id && item.selectedVariant?.id === variant?.id
+                item.id === product.id &&
+                item.selectedVariant?.id === variant?.id
                   ? { ...item, quantity: item.quantity + 1 }
                   : item
               )
@@ -82,19 +86,18 @@ export const useCart = create<CartState>()(
               ];
 
           const subtotal = newItems.reduce(
-            (sum, item) => sum + (item.selectedVariant?.price || item.price) * item.quantity,
+            (sum, item) =>
+              sum + (item.selectedVariant?.price || item.price) * item.quantity,
             0
           );
           const giftWrapFee = newItems.reduce(
-            (sum, item) => sum + (item.giftWrap ? GIFT_WRAP_FEE * item.quantity : 0),
+            (sum, item) =>
+              sum + (item.giftWrap ? GIFT_WRAP_FEE * item.quantity : 0),
             0
           );
           const shipping = subtotal > 100 ? 0 : 10;
-          const total = 
-            subtotal + 
-            shipping + 
-            giftWrapFee - 
-            subtotal * state.discountAmount;
+          const total =
+            subtotal + shipping + giftWrapFee - subtotal * state.discountAmount;
 
           return {
             items: newItems,
@@ -112,21 +115,20 @@ export const useCart = create<CartState>()(
           const newSelectedItems = state.selectedItems.filter(
             (id) => id !== productId
           );
-          
+
           const subtotal = newItems.reduce(
-            (sum, item) => sum + (item.selectedVariant?.price || item.price) * item.quantity,
+            (sum, item) =>
+              sum + (item.selectedVariant?.price || item.price) * item.quantity,
             0
           );
           const giftWrapFee = newItems.reduce(
-            (sum, item) => sum + (item.giftWrap ? GIFT_WRAP_FEE * item.quantity : 0),
+            (sum, item) =>
+              sum + (item.giftWrap ? GIFT_WRAP_FEE * item.quantity : 0),
             0
           );
           const shipping = subtotal > 100 ? 0 : 10;
-          const total = 
-            subtotal + 
-            shipping + 
-            giftWrapFee - 
-            subtotal * state.discountAmount;
+          const total =
+            subtotal + shipping + giftWrapFee - subtotal * state.discountAmount;
 
           return {
             items: newItems,
@@ -144,21 +146,20 @@ export const useCart = create<CartState>()(
           const newItems = state.items.filter(
             (item) => !state.selectedItems.includes(item.id)
           );
-          
+
           const subtotal = newItems.reduce(
-            (sum, item) => sum + (item.selectedVariant?.price || item.price) * item.quantity,
+            (sum, item) =>
+              sum + (item.selectedVariant?.price || item.price) * item.quantity,
             0
           );
           const giftWrapFee = newItems.reduce(
-            (sum, item) => sum + (item.giftWrap ? GIFT_WRAP_FEE * item.quantity : 0),
+            (sum, item) =>
+              sum + (item.giftWrap ? GIFT_WRAP_FEE * item.quantity : 0),
             0
           );
           const shipping = subtotal > 100 ? 0 : 10;
-          const total = 
-            subtotal + 
-            shipping + 
-            giftWrapFee - 
-            subtotal * state.discountAmount;
+          const total =
+            subtotal + shipping + giftWrapFee - subtotal * state.discountAmount;
 
           return {
             items: newItems,
@@ -176,21 +177,20 @@ export const useCart = create<CartState>()(
           const newItems = state.items.map((item) =>
             item.id === productId ? { ...item, quantity } : item
           );
-          
+
           const subtotal = newItems.reduce(
-            (sum, item) => sum + (item.selectedVariant?.price || item.price) * item.quantity,
+            (sum, item) =>
+              sum + (item.selectedVariant?.price || item.price) * item.quantity,
             0
           );
           const giftWrapFee = newItems.reduce(
-            (sum, item) => sum + (item.giftWrap ? GIFT_WRAP_FEE * item.quantity : 0),
+            (sum, item) =>
+              sum + (item.giftWrap ? GIFT_WRAP_FEE * item.quantity : 0),
             0
           );
           const shipping = subtotal > 100 ? 0 : 10;
-          const total = 
-            subtotal + 
-            shipping + 
-            giftWrapFee - 
-            subtotal * state.discountAmount;
+          const total =
+            subtotal + shipping + giftWrapFee - subtotal * state.discountAmount;
 
           return {
             items: newItems,
@@ -205,16 +205,18 @@ export const useCart = create<CartState>()(
       toggleGiftWrap: (productId) => {
         set((state) => {
           const newItems = state.items.map((item) =>
-            item.id === productId
-              ? { ...item, giftWrap: !item.giftWrap }
-              : item
+            item.id === productId ? { ...item, giftWrap: !item.giftWrap } : item
           );
-          
+
           const giftWrapFee = newItems.reduce(
-            (sum, item) => sum + (item.giftWrap ? GIFT_WRAP_FEE * item.quantity : 0),
+            (sum, item) =>
+              sum + (item.giftWrap ? GIFT_WRAP_FEE * item.quantity : 0),
             0
           );
-          const total = state.subtotal + state.shipping + giftWrapFee - 
+          const total =
+            state.subtotal +
+            state.shipping +
+            giftWrapFee -
             state.subtotal * state.discountAmount;
 
           return {
@@ -249,9 +251,13 @@ export const useCart = create<CartState>()(
       },
 
       moveSelectedToWishlist: () => {
-        const { selectedItems } = get();
+        const { selectedItems, products, wishlist } = get();
         selectedItems.forEach((id) => {
           // Implement wishlist logic here
+          const product = products.find((item: Product) => item.id === id); // Find the product by ID
+          if (product) {
+            wishlist.push(product); // Add to wishlist
+          }
         });
         get().removeSelectedItems();
       },
@@ -265,21 +271,20 @@ export const useCart = create<CartState>()(
           const newSelectedItems = state.selectedItems.filter(
             (id) => id !== productId
           );
-          
+
           const subtotal = newItems.reduce(
-            (sum, item) => sum + (item.selectedVariant?.price || item.price) * item.quantity,
+            (sum, item) =>
+              sum + (item.selectedVariant?.price || item.price) * item.quantity,
             0
           );
           const giftWrapFee = newItems.reduce(
-            (sum, item) => sum + (item.giftWrap ? GIFT_WRAP_FEE * item.quantity : 0),
+            (sum, item) =>
+              sum + (item.giftWrap ? GIFT_WRAP_FEE * item.quantity : 0),
             0
           );
           const shipping = subtotal > 100 ? 0 : 10;
-          const total = 
-            subtotal + 
-            shipping + 
-            giftWrapFee - 
-            subtotal * state.discountAmount;
+          const total =
+            subtotal + shipping + giftWrapFee - subtotal * state.discountAmount;
 
           return {
             items: newItems,
@@ -301,22 +306,24 @@ export const useCart = create<CartState>()(
           const newSavedItems = state.savedItems.filter(
             (item) => item.id !== productId
           );
-          const newItems = [...state.items, { ...item, estimatedDelivery: calculateEstimatedDelivery() }];
-          
+          const newItems = [
+            ...state.items,
+            { ...item, estimatedDelivery: calculateEstimatedDelivery() },
+          ];
+
           const subtotal = newItems.reduce(
-            (sum, item) => sum + (item.selectedVariant?.price || item.price) * item.quantity,
+            (sum, item) =>
+              sum + (item.selectedVariant?.price || item.price) * item.quantity,
             0
           );
           const giftWrapFee = newItems.reduce(
-            (sum, item) => sum + (item.giftWrap ? GIFT_WRAP_FEE * item.quantity : 0),
+            (sum, item) =>
+              sum + (item.giftWrap ? GIFT_WRAP_FEE * item.quantity : 0),
             0
           );
           const shipping = subtotal > 100 ? 0 : 10;
-          const total = 
-            subtotal + 
-            shipping + 
-            giftWrapFee - 
-            subtotal * state.discountAmount;
+          const total =
+            subtotal + shipping + giftWrapFee - subtotal * state.discountAmount;
 
           return {
             savedItems: newSavedItems,

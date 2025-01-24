@@ -2,8 +2,8 @@
 
 import { useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { useAuth } from "@/lib/contexts/auth-context"; // Adjust the import path as necessary
-import { LoadingSpinner } from "@/components/loading-spinner"; // Adjust the import path as necessary
+import { useAuth } from "lib/contexts/auth-context"; // Adjust the import path as necessary
+import { LoadingSpinner } from "components/loading-spinner"; // Adjust the import path as necessary
 
 interface WithAuthOptions {
   requireAdmin?: boolean; // Indicates if admin access is required
@@ -68,6 +68,9 @@ export function withAuth<P extends object>(
     if (options.allowIfAuthed && user) {
       return null;
     }
+
+    // Log the current pathname for debugging
+    console.log(`Current pathname: ${pathname}`);
 
     // Render the protected component
     return <WrappedComponent {...props} />;

@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import Image from "next/image";
 import Link from "next/link";
@@ -34,7 +34,10 @@ function CartItems() {
   } = useCart();
   const { toast } = useToast();
 
-  const handleQuantityUpdate = async (productId: number, newQuantity: number) => {
+  const handleQuantityUpdate = async (
+    productId: number,
+    newQuantity: number
+  ) => {
     if (newQuantity < 1) return;
     try {
       updateQuantity(productId, newQuantity);
@@ -42,6 +45,7 @@ function CartItems() {
         description: "Cart updated successfully",
       });
     } catch (error) {
+      console.error(`Error performing bulk  action:`, error);
       toast({
         variant: "destructive",
         description: "Failed to update cart",
@@ -49,19 +53,21 @@ function CartItems() {
     }
   };
 
-  const handleBulkAction = async (action: 'remove' | 'wishlist') => {
+  const handleBulkAction = async (action: "remove" | "wishlist") => {
     try {
-      if (action === 'remove') {
+      if (action === "remove") {
         removeSelectedItems();
       } else {
         moveSelectedToWishlist();
       }
       toast({
-        description: action === 'remove' 
-          ? "Selected items removed" 
-          : "Selected items moved to wishlist",
+        description:
+          action === "remove"
+            ? "Selected items removed"
+            : "Selected items moved to wishlist",
       });
     } catch (error) {
+      console.error("Error updating cart quantity:", error);
       toast({
         variant: "destructive",
         description: "Failed to perform bulk action",
@@ -92,14 +98,14 @@ function CartItems() {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => handleBulkAction('wishlist')}
+                  onClick={() => handleBulkAction("wishlist")}
                 >
                   Move to Wishlist
                 </Button>
                 <Button
                   variant="destructive"
                   size="sm"
-                  onClick={() => handleBulkAction('remove')}
+                  onClick={() => handleBulkAction("remove")}
                 >
                   Remove Selected
                 </Button>
@@ -143,8 +149,10 @@ function CartItems() {
                 </p>
                 {item.selectedVariant && (
                   <Badge variant="secondary">
-                    {item.selectedVariant.size && `Size: ${item.selectedVariant.size}`}
-                    {item.selectedVariant.color && ` Color: ${item.selectedVariant.color}`}
+                    {item.selectedVariant.size &&
+                      `Size: ${item.selectedVariant.size}`}
+                    {item.selectedVariant.color &&
+                      ` Color: ${item.selectedVariant.color}`}
                   </Badge>
                 )}
               </div>
@@ -158,7 +166,9 @@ function CartItems() {
                   <Button
                     variant="outline"
                     size="icon"
-                    onClick={() => handleQuantityUpdate(item.id, item.quantity - 1)}
+                    onClick={() =>
+                      handleQuantityUpdate(item.id, item.quantity - 1)
+                    }
                   >
                     <Minus className="h-4 w-4" />
                   </Button>
@@ -166,10 +176,14 @@ function CartItems() {
                   <Button
                     variant="outline"
                     size="icon"
-                    onClick={() => handleQuantityUpdate(item.id, item.quantity + 1)}
-                    disabled={item.selectedVariant?.stock 
-                      ? item.quantity >= item.selectedVariant.stock 
-                      : false}
+                    onClick={() =>
+                      handleQuantityUpdate(item.id, item.quantity + 1)
+                    }
+                    disabled={
+                      item.selectedVariant?.stock
+                        ? item.quantity >= item.selectedVariant.stock
+                        : false
+                    }
                   >
                     <Plus className="h-4 w-4" />
                   </Button>
@@ -187,7 +201,11 @@ function CartItems() {
                     className={item.giftWrap ? "text-primary" : ""}
                     title="Gift wrap"
                   >
-                    {item.giftWrap ? <Check className="h-4 w-4" /> : <Gift className="h-4 w-4" />}
+                    {item.giftWrap ? (
+                      <Check className="h-4 w-4" />
+                    ) : (
+                      <Gift className="h-4 w-4" />
+                    )}
                   </Button>
                   <Button
                     variant="ghost"

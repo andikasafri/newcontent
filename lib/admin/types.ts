@@ -29,6 +29,11 @@ export interface AdminStats {
     lowStock: number; // Number of products with low stock.
     outOfStock: number; // Number of products that are out of stock.
   };
+  conversionRate?: number; // Conversion rate, optional.
+  revenueData?: {
+    total: number; // Total revenue data.
+    graph: { date: string; revenue: number }[]; // Graph data for revenue.
+  };
 }
 
 /**

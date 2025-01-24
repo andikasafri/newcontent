@@ -48,6 +48,7 @@ export async function getAdminStats(period: string = "week") {
     });
     return handleResponse<AdminStats>(res);
   } catch (error) {
+    console.error("Failed to fetch admin stats:", error);
     throw new ApiError(500, "Failed to fetch admin stats");
   }
 }
@@ -66,6 +67,7 @@ export async function getInventoryStats() {
     });
     return handleResponse<InventoryStats>(res);
   } catch (error) {
+    console.error("Failed to fetch inventory stats:", error);
     throw new ApiError(500, "Failed to fetch inventory stats");
   }
 }
@@ -84,6 +86,7 @@ export async function getSalesForecasts() {
     });
     return handleResponse<SalesForecast[]>(res);
   } catch (error) {
+    console.error("Failed to fetch sales forecasts:", error);
     throw new ApiError(500, "Failed to fetch sales forecasts");
   }
 }
@@ -102,6 +105,7 @@ export async function getCustomerSegments() {
     });
     return handleResponse<CustomerSegment[]>(res);
   } catch (error) {
+    console.error("Failed to fetch customer segments:", error);
     throw new ApiError(500, "Failed to fetch customer segments");
   }
 }
@@ -125,6 +129,7 @@ export async function batchUpdateProducts(updates: ProductBatchUpdate[]) {
     });
     return handleResponse<Product[]>(res);
   } catch (error) {
+    console.error("Failed to batch update products:", error);
     throw new ApiError(500, "Failed to batch update products");
   }
 }
@@ -148,6 +153,7 @@ export async function batchUpdateOrders(updates: OrderBatchUpdate[]) {
     });
     return handleResponse<Order[]>(res);
   } catch (error) {
+    console.error("Failed to batch update orders:", error);
     throw new ApiError(500, "Failed to batch update orders");
   }
 }
@@ -173,6 +179,7 @@ export async function importProducts(file: File) {
     });
     return handleResponse<ImportResult>(res);
   } catch (error) {
+    console.error("Failed to import products:", error);
     throw new ApiError(500, "Failed to import products");
   }
 }
@@ -187,13 +194,14 @@ export async function importProducts(file: File) {
 export async function exportProducts(filters?: ProductExportFilters) {
   try {
     const queryString = filters
-      ? `?${new URLSearchParams(filters as any)}`
+      ? `?${new URLSearchParams(filters as unknown as Record<string, string>)}`
       : "";
     const res = await fetch(`${ADMIN_API_URL}/products/export${queryString}`, {
       headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
     });
     return res.blob();
   } catch (error) {
+    console.error("Failed to export products:", error);
     throw new ApiError(500, "Failed to export products");
   }
 }

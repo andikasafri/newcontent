@@ -1,13 +1,14 @@
 // app/admin/products/[id]/page.tsx
 "use client";
 
-import { getProduct } from "@/lib/api";
+import { getProduct, updateProduct } from "@/lib/api";
 // import { getProduct } from "lib/productApi";
 import { getCategories } from "lib/categoryApi";
 import { ProductForm } from "@/components/admin/product-form";
 import { useEffect, useState } from "react";
 import { Product, Category } from "@/lib/types";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useToast } from "@/hooks/use-toast";
 
 export default function EditProductPage({
   params,
@@ -17,6 +18,7 @@ export default function EditProductPage({
   const [loading, setLoading] = useState(true);
   const [product, setProduct] = useState<Product | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
+  const { toast } = useToast();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -62,13 +64,18 @@ export default function EditProductPage({
       <ProductForm
         product={product}
         categories={categories}
-        onSubmit={async (data) => {
-          // Handle form submission
+        onSubmit={async (formData) => {
           try {
-            // Make API call to update product
-            // Show success message
-          } catch (error) {
-            // Handle error
+            await updateProduct(parseInt(params.id), formData);
+            toast({
+              description: "Product updated successfully",
+            });
+          } catch (err) {
+            console.error("Failed to update product:", err);
+            toast({
+              variant: "destructive",
+              description: "Failed to update product",
+            });
           }
         }}
       />

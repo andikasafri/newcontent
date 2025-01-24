@@ -1,42 +1,72 @@
-'use client';
+"use client";
 
-import { Suspense, lazy } from 'react';
-import { withAuth } from '@/lib/hoc/withAuth';
-import { Card } from '@/components/ui/card';
-import { BarChart, DollarSign, Package, Users, TrendingUp, ShoppingBag } from 'lucide-react';
-import { useEffect, useState } from 'react';
-import { getAdminStats } from '@/lib/admin/api';
-import { AdminStats } from '@/lib/admin/types';
-import { Skeleton } from '@/components/ui/skeleton';
-import { DynamicCustomerSegments, DynamicSalesForecast, DynamicInventoryManagement } from '@/lib/utils/dynamic-imports';
-import { ErrorBoundary } from '@/components/error-boundary';
-import { measurePageLoad, reportPerformanceMetrics } from '@/lib/utils/performance-monitoring';
+import { Suspense, lazy } from "react";
+import { withAuth } from "@/lib/hoc/withAuth";
+import { Card } from "@/components/ui/card";
+import { useEffect, useState } from "react";
+import { getAdminStats } from "@/lib/admin/api";
+import { AdminStats } from "@/lib/admin/types";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  DynamicCustomerSegments,
+  DynamicSalesForecast,
+  DynamicInventoryManagement,
+} from "@/lib/utils/dynamic-imports";
+import { ErrorBoundary } from "@/components/error-boundary";
+import {
+  measurePageLoad,
+  reportPerformanceMetrics,
+  PerformanceMetrics,
+} from "@/lib/utils/performance-monitoring";
 
 // Lazy load charts as they're heavy and below the fold
-const DynamicLineChart = lazy(() => import('recharts').then(mod => ({ default: mod.LineChart })));
-const DynamicLine = lazy(() => import('recharts').then(mod => ({ default: mod.Line })));
-const DynamicXAxis = lazy(() => import('recharts').then(mod => ({ default: mod.XAxis })));
-const DynamicYAxis = lazy(() => import('recharts').then(mod => ({ default: mod.YAxis })));
-const DynamicCartesianGrid = lazy(() => import('recharts').then(mod => ({ default: mod.CartesianGrid })));
-const DynamicTooltip = lazy(() => import('recharts').then(mod => ({ default: mod.Tooltip })));
-const DynamicResponsiveContainer = lazy(() => import('recharts').then(mod => ({ default: mod.ResponsiveContainer })));
+const DynamicLineChart = lazy(() =>
+  import("recharts").then((mod) => ({ default: mod.LineChart }))
+);
+const DynamicLine = lazy(() =>
+  import("recharts").then((mod) => ({ default: mod.Line }))
+);
+const DynamicXAxis = lazy(() =>
+  import("recharts").then((mod) => ({ default: mod.XAxis }))
+);
+const DynamicYAxis = lazy(() =>
+  import("recharts").then((mod) => ({ default: mod.YAxis }))
+);
+const DynamicCartesianGrid = lazy(() =>
+  import("recharts").then((mod) => ({ default: mod.CartesianGrid }))
+);
+const DynamicTooltip = lazy(() =>
+  import("recharts").then((mod) => ({ default: mod.Tooltip }))
+);
+const DynamicResponsiveContainer = lazy(() =>
+  import("recharts").then((mod) => ({ default: mod.ResponsiveContainer }))
+);
 
 function AdminDashboard() {
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('overview');
 
   useEffect(() => {
     const fetchStats = async () => {
       try {
         const data = await getAdminStats();
         setStats(data);
-        
+
         // Measure and report performance after data load
         const metrics = measurePageLoad();
-        reportPerformanceMetrics(metrics);
+        if (metrics) {
+          const performanceMetrics: PerformanceMetrics = {
+            ttfb: metrics.ttfb,
+            fcp: metrics.fcp || 0,
+            lcp: metrics.lcp,
+            totalLoadTime: metrics.totalLoadTime,
+          };
+          reportPerformanceMetrics(performanceMetrics);
+        } else {
+          console.error("Failed to measure page load performance.");
+        }
       } catch (error) {
-        console.error('Failed to fetch stats:', error);
+        console.error("Failed to fetch stats:", error);
       } finally {
         setLoading(false);
       }
@@ -103,7 +133,23 @@ function AdminDashboard() {
 function StatsCards({ stats }: { stats: AdminStats }) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-      {/* Stats cards implementation... */}
+      {/* Example usage of stats */}
+      <div className="stat-card">
+        <h3>Total Revenue</h3>
+        <p>{stats.revenue.total}</p>
+      </div>
+      <div className="stat-card">
+        <h3>Total Orders</h3>
+        <p>{stats.orders.total}</p>
+      </div>
+      <div className="stat-card">
+        <h3>Total Customers</h3>
+        <p>{stats.customers.total}</p>
+      </div>
+      <div className="stat-card">
+        <h3>Total Inventory</h3>
+        <p>{stats.inventory.total}</p>
+      </div>
     </div>
   );
 }

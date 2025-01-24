@@ -61,5 +61,9 @@ export function rateLimitMiddleware(request: NextRequest) {
     });
   }
 
+  // Optionally, you can log the request ID for tracking
+  const requestId = nanoid();
+  console.log(`Request ID: ${requestId} from IP: ${ip}`);
+
   return null;
 }

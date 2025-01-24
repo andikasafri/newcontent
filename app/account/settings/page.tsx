@@ -39,6 +39,7 @@ function SettingsPage() {
         description: "Profile updated successfully",
       });
     } catch (error) {
+      console.error(error);
       toast({
         variant: "destructive",
         description: "Failed to update profile",

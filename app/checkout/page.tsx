@@ -51,6 +51,7 @@ export default function CheckoutPage() {
       });
       router.push("/order-confirmation");
     } catch (error) {
+      console.error("Failed to place order:", error);
       toast({
         variant: "destructive",
         description: "Failed to place order. Please try again.",
