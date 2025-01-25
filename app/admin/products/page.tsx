@@ -2,7 +2,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState, useEffect } from "react";
-import { getProducts } from "lib/api";
+import { getProducts } from "lib/productApi";
 import { Product } from "lib/types";
 import { Button } from "components/ui/button";
 import { Input } from "components/ui/input";

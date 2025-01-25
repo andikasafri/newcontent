@@ -1,4 +1,4 @@
-// Add new types for cart improvements
+// src/lib/types/types.ts
 export interface Category {
   id: number;
   name: string;
@@ -227,3 +227,25 @@ export interface ApiErrorData {
   message?: string;
   details?: string;
 }
+
+// Define HomePageData based on your page.tsx structure
+export type HomePageData = {
+  products: {
+    id: number;
+    title: string;
+    price: number;
+    description: string;
+    category: Category;
+    images: string[];
+    stock?: number;
+    ratings?: number;
+    reviews?: number;
+    variants?: ProductVariant[];
+  }[];
+  categories: {
+    id: number;
+    name: string;
+    description?: string;
+    image?: string;
+  }[];
+};

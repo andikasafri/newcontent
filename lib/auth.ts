@@ -1,7 +1,12 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { User, AuthResponse } from "./types";
-import * as api from "./api";
+import { User, AuthResponse } from "./types"; // Adjust the relative path if needed
+import {
+  login as userApiLogin,
+  register as userApiRegister,
+  getProfile as userApiGetProfile,
+  updateProfile as userApiUpdateProfile,
+} from "./userApi"; // Import functions directly from the correct module
 
 interface AuthState {
   user: User | null;
@@ -41,14 +46,14 @@ export const useAuth = create<AuthState>()(
           return;
         }
 
-        const auth: AuthResponse = await api.login(email, password);
-        const user = await api.getProfile(auth.access_token);
+        const auth: AuthResponse = await userApiLogin(email, password);
+        const user = await userApiGetProfile(auth.access_token);
         set({ user, token: auth.access_token, isAdmin: false });
       },
       register: async (email: string, password: string, name: string) => {
-        await api.register(email, password, name);
-        const auth: AuthResponse = await api.login(email, password);
-        const user = await api.getProfile(auth.access_token);
+        await userApiRegister(email, password, name);
+        const auth: AuthResponse = await userApiLogin(email, password);
+        const user = await userApiGetProfile(auth.access_token);
         set({ user, token: auth.access_token, isAdmin: false });
       },
       logout: () => set({ user: null, token: null, isAdmin: false }),
@@ -56,7 +61,7 @@ export const useAuth = create<AuthState>()(
         const state = useAuth.getState();
         if (!state.token || !state.user) throw new Error("Not authenticated");
 
-        const updatedUser = await api.updateProfile(state.token, data);
+        const updatedUser = await userApiUpdateProfile(state.token, data);
         set({ user: { ...state.user, ...updatedUser } });
       },
     }),

@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useState } from "react";
 import { User, AuthResponse } from "../types";
-import * as api from "../api";
+import * as api from "../userApi"; // Update to use userApi for auth functions
 import { useToast } from "@/hooks/use-toast";
 
 interface AuthContextType {
@@ -143,7 +143,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setIsLoading(true);
     try {
       // API call to update profile
-      const updatedUser = { ...user, ...data };
+      const updatedUser = await api.updateProfile(token, data);
       setUser(updatedUser);
       toast({
         description: "Profile updated successfully",

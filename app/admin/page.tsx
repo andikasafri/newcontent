@@ -26,6 +26,7 @@ function AdminDashboard() {
         const response = await getStats();
         // Type guard to ensure response matches AdminStats
         if (
+          response &&
           "revenue" in response &&
           "orders" in response &&
           "customers" in response &&
