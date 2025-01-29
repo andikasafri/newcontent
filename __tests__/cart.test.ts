@@ -1,7 +1,7 @@
 // File: cart.test.ts
 
 describe("Cart Functionality Tests", () => {
-  const cartPath = "@/lib/cart.ts";
+  const cartPath = "C:\\Users\\Andy\\Downloads\\BeforeJest\\project\\lib\\cart";
   const { useCart } = require(cartPath);
 
   beforeEach(() => {

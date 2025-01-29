@@ -46,7 +46,8 @@ export function getRateLimit(ip: string): { ok: boolean; remaining: number } {
  * @returns A NextResponse object with a 429 status if the limit is exceeded, otherwise null.
  */
 export function rateLimitMiddleware(request: NextRequest) {
-  const ip = request.ip || "anonymous";
+  // Use headers to get the IP address if 'ip' is not available
+  const ip = request.headers.get("x-forwarded-for") || "anonymous";
   const rateLimit = getRateLimit(ip);
 
   if (!rateLimit.ok) {

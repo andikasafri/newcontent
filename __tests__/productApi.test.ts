@@ -1,5 +1,6 @@
 describe("API Functionality Tests", () => {
-  const apiPath = "@/lib/productApi";
+  const apiPath =
+    "C:\\Users\\Andy\\Downloads\\BeforeJest\\project\\lib\\productApi";
   const {
     getProducts,
     handleResponse,

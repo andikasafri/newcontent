@@ -1,3 +1,4 @@
+// app/admin/products/page.tsx
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
@@ -56,7 +57,7 @@ export default function ProductsPage() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold">Products</h1>
-        <Button>
+        <Button onClick={() => router.push("/admin/products/new")}>
           <Plus className="h-4 w-4 mr-2" />
           Add Product
         </Button>
