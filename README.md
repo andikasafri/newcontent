@@ -1,116 +1,148 @@
-# E-commerce Web Application
+# NextShop E-commerce Platform
 
-Welcome to the **E-commerce Web Application** project! This document provides an overview of the project, its structure, features, and the struggles faced during its development. This README will serve as a comprehensive guide to understanding and using the application.
+[![Live Demo](https://img.shields.io/badge/demo-live-green?style=for-the-badge)](https://newcontent-three.vercel.app/)
+[![GitHub Repository](https://img.shields.io/badge/repo-GitHub-blue?style=for-the-badge)](https://github.com/revou-fsse-oct24/milestone-2-andikasafri)
 
----
+![Application Preview](/public/application-product-page.png)
+_Product Listing Page - [View Full Size](/public/application-product-page.png)_
 
-## **Table of Contents**
+![Admin Dashboard](/public/admin-product-page.png)
+_Admin Dashboard - [View Full Size](/public/admin-product-page.png)_
 
-1. [Project Overview](#project-overview)
-2. [Features](#features)
-3. [Project Structure](#project-structure)
-4. [Technologies Used](#technologies-used)
-5. [Setup Instructions](#setup-instructions)
-6. [Struggles Faced](#struggles-faced)
-7. [Future Improvements](#future-improvements)
+## Table of Contents
 
----
+- [Features](#features)
+- [Tech Stack](#tech-stack)
+- [Installation](#installation)
+- [Project Structure](#project-structure)
+- [Key Implementations](#key-implementations)
+- [Performance](#performance)
+- [Build Details](#build-details)
+- [Future Roadmap](#future-roadmap)
 
-## **Project Overview**
+## Features
 
-This project is a modern e-commerce web application built with **Next.js** and **TypeScript**. It is designed to provide a seamless shopping experience with a responsive UI and efficient state management. The application includes features such as user authentication, a product catalog, a shopping cart, and more.
+- **User System**: Secure authentication with JWT
+- **Product Management**: CRUD operations for admins
+- **Advanced Cart**: Save for later, bulk actions, discounts
+- **Order System**: Checkout process & order history
+- **Responsive UI**: Mobile-first design approach
+- **Performance**: Code splitting & lazy loading
 
----
+## Tech Stack
 
-## **Features**
-
-- **User Authentication**: Login and registration with form validation.
-- **Product Management**:
-  - View product details.
-  - Add, update, and remove items from the shopping cart.
-  - Pagination and category filtering.
-- **Responsive Design**: Optimized for desktop and mobile.
-- **State Management**: Centralized state using Zustand.
-- **API Integration**: Data fetching from a RESTful API using the Fetch API.
-
----
-
-## **Project Structure**
-
-The project is organized into the following directories:
-
-- **`src/components`**: Reusable UI components.
-- **`src/pages`**: Components for application routes (e.g., Home, Cart, Login).
-- **`src/lib`**: API functions and utility methods.
-- **`src/store`**: State management logic using Zustand.
-- **`src/types`**: TypeScript type definitions.
-- **`src/hooks`**: Custom React hooks.
-- **`src/styles`**: Global styles.
-
----
-
-## **Technologies Used**
-
-- **Frontend**: Next.js, TypeScript
+- **Framework**: Next.js 15.1.6
+- **Language**: TypeScript 5.0+
 - **State Management**: Zustand
-- **API**: Fetch API for HTTP requests
+- **Styling**: Tailwind CSS
+- **API**: RESTful integration
+- **Deployment**: Vercel
+
+## Installation
+
+```bash
+git clone https://github.com/revou-fsse-oct24/milestone-2-andikasafri.git
+cd milestone-2-andikasafri
+npm install
+npm run dev
+```
+
+## Project Structure
+
+```text
+milestone-2-andikasafri/
+├── app/
+│   ├── admin/            # Admin dashboard components
+│   ├── cart/             # Shopping cart functionality
+│   ├── product/          # Product display pages
+│   └── ...               # Other route segments
+├── components/           # Reusable UI components
+├── lib/                  # API clients and utilities
+├── hooks/                # Custom React hooks
+└── types/                # TypeScript type definitions
+```
+
+## Key Implementations
+
+### 1. Advanced State Management
+
+**File**: `lib/store/cart.ts`
+
+```typescript
+// Zustand store handling complex cart logic
+const useCartStore = create<CartState>((set) => ({
+  items: [],
+  savedItems: [],
+  addItem: (product) => {
+    set((state) => ({ items: [...state.items, { product, quantity: 1 }] }));
+  },
+  // Full cart operations implementation...
+}));
+```
+
+### 2. Admin Dashboard
+
+**File**: `app/admin/products/page.tsx`
+
+```typescript
+// Product management dashboard
+export default function ProductsPage() {
+  const { products, deleteProduct } = useProductStore();
+
+  return (
+    <div className="container mx-auto p-4">
+      <DataTable
+        columns={productColumns}
+        data={products}
+        onDelete={deleteProduct}
+      />
+    </div>
+  );
+}
+```
+
+### 3. Performance Optimization
+
+**File**: `components/ProductGrid.tsx`
+
+```typescript
+// Dynamic import with lazy loading
+const ProductCard = dynamic(() => import("@/components/ProductCard"), {
+  loading: () => <Skeleton className="h-64 w-full" />,
+});
+```
+
+## Performance
+
+Optimized build output with hybrid rendering:
+
+```text
+Route (app)                              Size     First Load JS
+├ ● /category/[id]                       33.4 kB         138 kB  # SSG
+├ ƒ /admin/products/[id]                 36.1 kB         141 kB  # SSR
+└ ○ /products                            22.8 kB         128 kB   # Static
+```
+
+## Build Details
+
+```bash
+npm run build
+▲ Next.js 15.1.6
+✓ Collected page data (120 pages)
+✓ Static generation for 86 product pages
+✓ SSR enabled for admin dashboard
+✓ Middleware for auth handling (38.9 kB)
+```
+
+## Future Roadmap
+
+- [ ] Product review system
+- [ ] Advanced search filters
+- [ ] Payment gateway integration
+- [ ] CI/CD pipeline implementation
 
 ---
 
-## **Setup Instructions**
-
-To run this project locally, follow these steps:
-
-1. **Clone the Repository**:
-
-   ```bash
-   git clone https://github.com/yourusername/yourproject.git
-   cd yourproject
-   ```
-
-2. **Install Dependencies**:
-
-   ```bash
-   npm install
-   ```
-
-3. **Start the Development Server**:
-
-   ```bash
-   npm run dev
-   ```
-
----
-
-## **Struggles Faced**
-
-1. **Managing State with Zustand**:
-
-   - Initial difficulty in replacing props drilling with Zustand for centralized state management.
-
-2. **Implementing Authentication**:
-
-   - Challenges in handling tokens and user sessions.
-
-3. **Debugging Issues**:
-   - Resolving errors in API integration and state management.
-
----
-
-## **Future Improvements**
-
-1. **Testing**:
-
-   - Add unit tests with Jest and React Testing Library.
-   - Write integration tests for critical user flows.
-
-2. **Accessibility**:
-
-   - Enhance keyboard navigation and ARIA roles.
-
-3. **Performance Optimization**:
-   - Use memoization techniques for optimization.
-
----
-
-If you have any questions or feedback, feel free to reach out. Enjoy exploring the project!
+**Developed by Andika Safri**  
+[![GitHub](https://img.shields.io/badge/GitHub-Profile-lightgrey?style=flat-square)](https://github.com/yourprofile)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-Profile-blue?style=flat-square)](https://linkedin.com/in/yourprofile)

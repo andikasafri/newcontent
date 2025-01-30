@@ -52,7 +52,7 @@ export default async function CategoriesPage() {
             <Card className="group cursor-pointer overflow-hidden">
               <div className="aspect-[16/9] relative overflow-hidden">
                 <Image
-                  src={category.image || "/fallback-image.jpg"}
+                  src={category.image || "../../public/fallback.jpg"}
                   alt={category.name}
                   fill
                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
