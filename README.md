@@ -4,10 +4,10 @@
 [![GitHub Repository](https://img.shields.io/badge/repo-GitHub-blue?style=for-the-badge)](https://github.com/revou-fsse-oct24/milestone-2-andikasafri)
 
 ![Application Preview](/public/application-product-page.png)
-_Product Listing Page - [View Full Size](/public/application-product-page.png)_
+_Product Listing Page - [View Full Size](/public/application-product-full-page.png)_
 
 ![Admin Dashboard](/public/admin-product-page.png)
-_Admin Dashboard - [View Full Size](/public/admin-product-page.png)_
+_Admin Dashboard - [View Full Size](/public/admin-product-full-page.png)_
 
 ## Table of Contents
 
