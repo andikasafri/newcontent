@@ -1,4 +1,3 @@
-// app/category/[id]/CategoryClientPage.tsx
 "use client";
 
 import { Product, Category } from "@/lib/types";
@@ -13,6 +12,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { useEffect, useState } from "react";
 
 interface ClientProps {
   products: Product[];
@@ -29,9 +29,16 @@ export default function CategoryClientPage({
   categories,
   params,
 }: ClientProps) {
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  if (!isMounted) return null;
+
   return (
     <div className="container mx-auto px-4 py-8">
-      {/* Breadcrumb Navigation */}
       <nav className="flex items-center gap-2 mb-8">
         <Link href="/" className="text-muted-foreground hover:text-foreground">
           Home
@@ -48,7 +55,6 @@ export default function CategoryClientPage({
       </nav>
 
       <div className="lg:grid lg:grid-cols-4 lg:gap-8">
-        {/* Mobile Filters */}
         <div className="lg:hidden mb-4">
           <Sheet>
             <SheetTrigger asChild>
@@ -66,13 +72,11 @@ export default function CategoryClientPage({
           </Sheet>
         </div>
 
-        {/* Desktop Filters */}
         <div className="hidden lg:block space-y-6">
           <h2 className="text-lg font-semibold mb-4">Categories</h2>
           <CategoryList categories={categories} currentId={category.id} />
         </div>
 
-        {/* Product Grid */}
         <div className="lg:col-span-3">
           <header className="flex items-center justify-between mb-6">
             <h1 className="text-2xl font-bold">{category.name}</h1>

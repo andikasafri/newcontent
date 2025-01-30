@@ -14,14 +14,20 @@ import {
 import Link from "next/link";
 import Image from "next/image";
 import { useToast } from "@/hooks/use-toast";
+import { useEffect, useState } from "react";
 
 interface ProductGridProps {
   products: Product[];
 }
 
 export default function ProductGrid({ products }: ProductGridProps) {
+  const [isMounted, setIsMounted] = useState(false);
   const { addItem } = useCart();
   const { toast } = useToast();
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const handleAddToCart = (product: Product) => {
     try {
@@ -37,6 +43,8 @@ export default function ProductGrid({ products }: ProductGridProps) {
       });
     }
   };
+
+  if (!isMounted) return null;
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

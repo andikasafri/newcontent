@@ -1,7 +1,6 @@
-// app/category/[id]/page.tsx
 import { getProducts, getCategories } from "@/lib/api";
 import { notFound } from "next/navigation";
-import CategoryClientPage from "./CategoryClientPage";
+import dynamic from "next/dynamic";
 import type { Product, Category } from "@/lib/types";
 
 export async function generateStaticParams() {
@@ -11,11 +10,13 @@ export async function generateStaticParams() {
   }));
 }
 
-export default async function CategoryPage({
-  params,
-}: {
+const CategoryClientPage = dynamic(() => import("./CategoryClientPage"));
+
+type PageProps = {
   params: { id: string };
-}) {
+};
+
+export default async function CategoryPage({ params }: PageProps) {
   const categoryId = parseInt(params.id);
 
   if (isNaN(categoryId)) {

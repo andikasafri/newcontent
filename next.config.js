@@ -1,54 +1,32 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: "export",
+  // output: "export",
   eslint: {
     ignoreDuringBuilds: true,
   },
-  images: { unoptimized: true },
-
-  // Optimize bundle splitting
-  webpack: (config, { isServer }) => {
-    // Optimize vendor chunks
-    config.optimization.splitChunks = {
-      chunks: "all",
-      cacheGroups: {
-        // Vendor chunk for large third-party dependencies
-        vendor: {
-          test: /[\\/]node_modules[\\/]/,
-          name(module) {
-            // Extract vendor name for better debugging
-            const packageNameMatch = module.context
-              ? module.context.match(/[\\/]node_modules[\\/](.*?)([\\/]|$)/)
-              : null;
-            const packageName = packageNameMatch
-              ? packageNameMatch[1]
-              : "unknown";
-            return `vendor.${packageName.replace("@", "")}`;
-          },
-          priority: 20,
-        },
-        // Common chunk for code shared between pages
-        common: {
-          name: "common",
-          minChunks: 2,
-          priority: 10,
-          reuseExistingChunk: true,
-        },
-        // Specific chunk for admin features
-        admin: {
-          test: /[\\/]components[\\/]admin[\\/]/,
-          name: "admin",
-          chunks: "async",
-          priority: 30,
-        },
-      },
+  images: {
+    unoptimized: true,
+  },
+  webpack: (config) => {
+    // Add fallback for browser-specific globals
+    config.resolve.fallback = {
+      ...config.resolve.fallback,
+      self: false,
+      window: false,
+      global: false,
     };
 
-    // Cache split chunks
-    config.cache = {
-      type: "filesystem",
-      buildDependencies: {
-        config: [__filename],
+    // Optimize chunk splitting for static export
+    config.optimization.splitChunks = {
+      chunks: "async",
+      minSize: 20000,
+      maxSize: 244000,
+      cacheGroups: {
+        vendors: {
+          test: /[\\/]node_modules[\\/]/,
+          priority: -10,
+          reuseExistingChunk: true,
+        },
       },
     };
 
